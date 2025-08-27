@@ -5,6 +5,7 @@ pub enum BotError {
     Config(String),
     Discord(serenity::Error),
     Io(std::io::Error),
+    Command(String),
     Other(String),
 }
 
@@ -14,6 +15,7 @@ impl fmt::Display for BotError {
             BotError::Config(msg) => write!(f, "Configuration error: {}", msg),
             BotError::Discord(err) => write!(f, "Discord error: {}", err),
             BotError::Io(err) => write!(f, "IO error: {}", err),
+            BotError::Command(msg) => write!(f, "Command error: {}", msg),
             BotError::Other(msg) => write!(f, "Error: {}", msg),
         }
     }

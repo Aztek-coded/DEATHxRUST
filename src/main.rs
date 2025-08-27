@@ -6,7 +6,7 @@ mod utils;
 
 use dotenv::dotenv;
 use config::Settings;
-use bot::create_client;
+use bot::create_poise_client;
 use utils::BotResult;
 
 #[tokio::main]
@@ -18,7 +18,8 @@ async fn main() -> BotResult<()> {
     
     println!("Initializing Discord bot...");
     
-    let mut client = create_client(&settings).await?;
+    let mut client = create_poise_client(&settings).await
+        .map_err(|e| utils::BotError::Config(e.to_string()))?;
     
     println!("Starting bot client...");
     client.start().await?;

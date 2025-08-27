@@ -1,12 +1,21 @@
-use serenity::model::channel::Message;
-use serenity::prelude::*;
+use crate::bot::{Context, Error};
 
-pub async fn execute(ctx: &Context, msg: &Message) {
-    let help_message = "📋 **Available Commands**\n\n\
-        `!ping` - Test bot responsiveness\n\
-        `!help` - Show this help message";
-    
-    if let Err(why) = msg.channel_id.say(&ctx.http, help_message).await {
-        eprintln!("Error sending help response: {why:?}");
-    }
+/// Show available commands and their usage
+#[poise::command(slash_command, prefix_command)]
+pub async fn help(
+    ctx: Context<'_>,
+    #[description = "Specific command to show help about"]
+    #[autocomplete = "poise::builtins::autocomplete_command"]
+    command: Option<String>,
+) -> Result<(), Error> {
+    poise::builtins::help(
+        ctx,
+        command.as_deref(),
+        poise::builtins::HelpConfiguration {
+            extra_text_at_bottom: "\n💡 **Tip:** These commands work as both slash commands (/) and prefix commands (!)",
+            ..Default::default()
+        },
+    )
+    .await?;
+    Ok(())
 }
