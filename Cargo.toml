@@ -1,0 +1,24 @@
+[package]
+name = "death-bot"
+version = "0.1.0"
+edition = "2021"
+authors = ["Your Name <your.email@example.com>"]
+description = "A modular Discord bot built with Rust and Serenity"
+readme = "README.md"
+license = "MIT"
+
+[lib]
+name = "death_bot"
+path = "src/lib.rs"
+
+[[bin]]
+name = "death-bot"
+path = "src/main.rs"
+
+[dependencies]
+serenity = { version = "0.12", default-features = false, features = ["client", "gateway", "rustls_backend", "model"] }
+tokio = { version = "1.0", features = ["macros", "rt-multi-thread"] }
+dotenv = "0.15"
+
+[dev-dependencies]
+tokio-test = "0.4"
