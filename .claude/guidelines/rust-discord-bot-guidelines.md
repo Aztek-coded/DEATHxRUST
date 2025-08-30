@@ -48,84 +48,55 @@ pub type Framework = poise::Framework<Data, Error>;
 
 ## Command Development
 
-### Basic Command Structure
+For comprehensive command development guidelines including structure, response types, color standardization, and alias configuration, see:
+
+📋 **[Command Development Guidelines](./Command%20Development.md)**
+
+This dedicated guide covers:
+- ✨ Basic command structure and parameters
+- 🎨 Standardized color system for embeds (`#C6AC80`, `#62CB77`, `#853535`, `#FFE209`)
+- 🚀 ResponseHelper utilities for consistent responses
+- 🔗 Alias configuration best practices
+- 📝 Subcommand patterns and examples
+- 🧪 Testing guidelines for commands
+
+### Quick Command Template
+
 ```rust
 use crate::bot::{Context, Error};
+use crate::utils::{ResponseHelper, EmbedColor};
 
-/// Command description (shown in Discord)
+/// Command description for Discord
 #[poise::command(
-    slash_command,           // Enable as slash command
-    prefix_command,          // Enable as prefix command
-    category = "Category",   // Command category
-    aliases("alias1"),       // Alternative names
-    required_permissions = "SEND_MESSAGES",  // Required permissions
+    slash_command,
+    prefix_command,
+    aliases("short", "alt", "alternative"),
+    category = "Category"
 )]
 pub async fn command_name(
     ctx: Context<'_>,
     #[description = "Parameter description"] param: String,
 ) -> Result<(), Error> {
-    // Implementation
-    ctx.say("Response").await?;
+    // Success response using standardized colors
+    ResponseHelper::send_success(ctx, "✅ Success", "Operation completed!").await?;
     Ok(())
 }
 ```
 
-### Command Parameters
+### Command Registration
+
 ```rust
-// Required parameter
-#[description = "User to greet"] user: serenity::model::user::User,
-
-// Optional parameter
-#[description = "Custom message"] message: Option<String>,
-
-// Default values
-#[description = "Page number"] 
-#[min = 1] 
-#[max = 100] 
-page: Option<u32>,
-
-// Autocomplete
-#[autocomplete = "autocomplete_function"] item: String,
-```
-
-### Response Types
-```rust
-// Simple text response
-ctx.say("Hello!").await?;
-
-// Ephemeral response (only visible to user)
-ctx.send(poise::CreateReply::default()
-    .content("Private message")
-    .ephemeral(true)
-).await?;
-
-// Embed response
-ctx.send(poise::CreateReply::default()
-    .embed(serenity::all::CreateEmbed::default()
-        .title("Title")
-        .description("Description")
-        .color(0x00ff00)
-    )
-).await?;
-
-// Deferred response for long operations
-ctx.defer().await?;
-// ... long operation ...
-ctx.say("Done!").await?;
-```
-
-### Subcommands
-```rust
-#[poise::command(slash_command, subcommands("add", "remove", "list"))]
-pub async fn config(_: Context<'_>) -> Result<(), Error> {
-    Ok(())  // Parent command doesn't execute
-}
-
-#[poise::command(slash_command)]
-pub async fn add(ctx: Context<'_>, key: String, value: String) -> Result<(), Error> {
-    // Implementation
-    Ok(())
-}
+// Add to commands list in bot/framework.rs
+commands![
+    help,
+    ping,
+    info,
+    prefix,
+    boosterrole,
+    cache_status,
+    // Add your new command here
+    command_name,
+],
 ```
 
 ## Error Handling
@@ -234,68 +205,6 @@ tokio::spawn(async move {
         tracing::error!("Background task failed: {}", e);
     }
 });
-```
-
-## Data Management
-
-### Shared State
-```rust
-use std::sync::Arc;
-use tokio::sync::RwLock;
-
-pub struct Data {
-    settings: Settings,
-    cache: Arc<RwLock<HashMap<String, String>>>,
-    db_pool: sqlx::PgPool,
-}
-
-impl Data {
-    pub async fn get_cached(&self, key: &str) -> Option<String> {
-        self.cache.read().await.get(key).cloned()
-    }
-    
-    pub async fn set_cached(&self, key: String, value: String) {
-        self.cache.write().await.insert(key, value);
-    }
-}
-```
-
-### Database Integration
-```rust
-// Using SQLx
-pub async fn get_user_data(
-    pool: &sqlx::PgPool,
-    user_id: i64,
-) -> Result<UserData, Error> {
-    sqlx::query_as!(
-        UserData,
-        "SELECT * FROM users WHERE id = $1",
-        user_id
-    )
-    .fetch_one(pool)
-    .await
-    .map_err(Into::into)
-}
-```
-
-### Caching Strategy
-```rust
-use moka::future::Cache;
-
-pub struct Data {
-    user_cache: Cache<u64, User>,
-}
-
-impl Data {
-    pub fn new() -> Self {
-        Self {
-            user_cache: Cache::builder()
-                .max_capacity(1000)
-                .time_to_live(Duration::from_secs(300))
-                .build(),
-        }
-    }
-}
 ```
 
 ## Event Handling
@@ -561,37 +470,6 @@ impl CommandRateLimiter {
             .map_err(|_| "Rate limit exceeded".into())
     }
 }
-```
-
-## Deployment Guidelines
-
-### Environment Configuration
-```bash
-# .env.example
-DISCORD_TOKEN=your_token_here
-COMMAND_PREFIX=!
-DEVELOPMENT_GUILD_ID=123456789
-AUTO_SYNC_COMMANDS=false
-SLASH_COMMANDS_GLOBAL=false
-RUST_LOG=info
-DATABASE_URL=postgres://user:pass@localhost/dbname
-```
-
-### Docker Deployment
-```dockerfile
-# Dockerfile
-FROM rust:1.75 as builder
-WORKDIR /app
-COPY Cargo.toml Cargo.lock ./
-COPY src ./src
-RUN cargo build --release
-
-FROM debian:bookworm-slim
-RUN apt-get update && apt-get install -y \
-    ca-certificates \
-    && rm -rf /var/lib/apt/lists/*
-COPY --from=builder /app/target/release/bot /usr/local/bin/bot
-CMD ["bot"]
 ```
 
 ### Health Checks

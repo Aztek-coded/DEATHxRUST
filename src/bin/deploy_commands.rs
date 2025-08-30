@@ -1,22 +1,22 @@
-use std::env;
-use serenity::all::*;
+use death_bot::commands::{help, info, ping, prefix};
 use death_bot::config::Settings;
-use death_bot::commands::{ping, info, help};
+use serenity::all::*;
+use std::env;
 
 #[tokio::main]
 async fn main() -> Result<(), Box<dyn std::error::Error>> {
     // Load environment variables
     dotenv::dotenv().ok();
-    
+
     let settings = Settings::from_env()?;
-    
+
     // Parse command line arguments
     let args: Vec<String> = env::args().collect();
     let (global, guild_id) = parse_arguments(&args)?;
-    
+
     println!("🚀 Discord Slash Command Deployment Tool (Poise)");
     println!("=================================================");
-    
+
     if global {
         println!("🌍 Deploying commands globally");
         println!("⏳ Note: Global commands can take up to 1 hour to appear");
@@ -31,44 +31,47 @@ async fn main() -> Result<(), Box<dyn std::error::Error>> {
             println!("🌍 Target: Global");
         }
     }
-    
+
     println!();
-    
+
     // Create Discord HTTP client
     let client = Client::builder(&settings.discord_token, GatewayIntents::empty()).await?;
     let http = &client.http;
-    
+
     // Get Poise commands
-    let commands = vec![
-        ping::ping(),
-        help::help(),
-        info::info(),
-    ];
-    
+    let commands = vec![ping::ping(), help::help(), info::info(), prefix::prefix()];
+
     println!("📦 Prepared {} commands for deployment", commands.len());
-    
+
     // Determine deployment target
     let deployment_guild_id = if global {
         None
     } else {
         guild_id.or(settings.development_guild_id)
     };
-    
+
     // Deploy commands using Poise built-in functions
     match deploy_commands(http, &commands, deployment_guild_id).await {
         Ok(deployed_count) => {
-            println!("🎉 Successfully deployed {} slash commands!", deployed_count);
-            
+            println!(
+                "🎉 Successfully deployed {} slash commands!",
+                deployed_count
+            );
+
             if deployment_guild_id.is_some() {
                 println!("⚡ Commands should be available immediately in the target guild");
             } else {
                 println!("🕐 Global commands may take up to 1 hour to propagate to all servers");
             }
-            
+
             // List deployed commands
             println!("\n📋 Deployed commands:");
             for command in &commands {
-                println!("  /{} - {}", command.name, command.description.as_deref().unwrap_or("No description"));
+                println!(
+                    "  /{} - {}",
+                    command.name,
+                    command.description.as_deref().unwrap_or("No description")
+                );
             }
         }
         Err(e) => {
@@ -76,7 +79,7 @@ async fn main() -> Result<(), Box<dyn std::error::Error>> {
             std::process::exit(1);
         }
     }
-    
+
     println!("\n✨ Deployment complete!");
     Ok(())
 }
@@ -87,7 +90,7 @@ async fn deploy_commands(
     guild_id: Option<u64>,
 ) -> Result<usize, Box<dyn std::error::Error>> {
     println!("🔄 Starting deployment...");
-    
+
     if let Some(guild_id) = guild_id {
         println!("🏰 Deploying to guild: {}", guild_id);
         let guild_id = GuildId::new(guild_id);
@@ -96,7 +99,7 @@ async fn deploy_commands(
         println!("🌍 Deploying globally");
         poise::builtins::register_globally(http, commands).await?;
     }
-    
+
     println!("✅ Commands registered successfully");
     Ok(commands.len())
 }
@@ -104,7 +107,7 @@ async fn deploy_commands(
 fn parse_arguments(args: &[String]) -> Result<(bool, Option<u64>), Box<dyn std::error::Error>> {
     let mut global = false;
     let mut guild_id = None;
-    
+
     let mut i = 1;
     while i < args.len() {
         match args[i].as_str() {
@@ -131,7 +134,7 @@ fn parse_arguments(args: &[String]) -> Result<(bool, Option<u64>), Box<dyn std::
         }
         i += 1;
     }
-    
+
     Ok((global, guild_id))
 }
 

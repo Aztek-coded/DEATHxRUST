@@ -45,28 +45,59 @@
 ## Feature Details:
 
 ### Name:
-
+**Booster Role Command Suite**
 
 ### Intended Function/Feature:
+A comprehensive command system for Discord server boosters and administrators to manage custom booster roles. The feature enables:
 
+1. **Custom Color Roles** - Allow boosters to create personalized color roles with custom names
+2. **Role Linking** - Administrators can link existing roles to function as booster roles
+3. **Content Filtering** - Administrators can blacklist inappropriate words for role names
+4. **Management Tools** - View and manage all booster roles in the server
 
+**Command Structure:**
+- `/boosterrole color [color] [second_color] [name]` - Create custom color role (Booster only)
+- `/boosterrole link [member] [role]` - Link role to booster (Manage Guild permission)
+- `/boosterrole filter [word]` - Add word to blacklist (Manage Guild permission)
+- `/boosterrole filter list` - View blacklisted words (Manage Guild permission)
+- `/boosterrole list` - View all booster roles (Manage Guild permission)
 
 ### Symptoms/Behaviors (if update):
-
+*New feature implementation - N/A*
 
 ### Expected Outcomes:
+- **For Boosters:**
+  - Create custom color roles with personalized names
+  - Choose primary and secondary colors for their role
+  - Enhanced server personalization experience
+  - Automatic role management tied to boost status
 
+- **For Administrators:**
+  - Link existing roles to boosters without creating new ones
+  - Filter inappropriate role names through word blacklist
+  - View comprehensive list of all booster roles for management
+  - Maintain server standards through content filtering
+  - Delegate role management while maintaining control
 
+- **Technical Implementation:**
+  - 5 slash commands with subcommand group structure
+  - Permission-based access control (Booster-only and Manage Guild permissions)
+  - Persistent data storage for booster roles, filters, and links
+  - Color validation and parsing with hex/RGB support
+  - Role hierarchy validation and management
+  - Automatic cleanup when boost expires
+  - Rate limiting for role creation
+  - Embed-based responses for better UX
 
-
+- **Discord API Interactions:**
+  - Role creation with color values
+  - Member role assignment/removal
+  - Permission checking for command execution
+  - Guild boost status verification
+  - Role position management in hierarchy
 
 ## Reference screenshots:
-
-
-
-
-
-
+*No screenshots provided for this feature*
 
 ## Development Guidelines:
 

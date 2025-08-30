@@ -21,11 +21,14 @@ name = "deploy_commands"
 path = "src/bin/deploy_commands.rs"
 
 [dependencies]
-serenity = { version = "0.12", default-features = false, features = ["client", "gateway", "rustls_backend", "model"] }
+serenity = { version = "0.12", default-features = false, features = ["client", "gateway", "rustls_backend", "model", "cache"] }
 poise = "0.6"
 tokio = { version = "1.0", features = ["macros", "rt-multi-thread"] }
 dotenv = "0.15"
 async-trait = "0.1"
+sqlx = { version = "0.7", features = ["runtime-tokio-rustls", "sqlite"] }
+tracing = "0.1"
+chrono = { version = "0.4", features = ["serde"] }
 
 [dev-dependencies]
 tokio-test = "0.4"

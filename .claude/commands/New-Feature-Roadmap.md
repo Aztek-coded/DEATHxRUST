@@ -45,23 +45,40 @@
 ## Feature Details:
 
 ### Command/Feature Name:
-
+**Booster Role Creation Command (`boosterrole`)**
 
 ### Intended Functionality:
-- Command type (slash/prefix/both):
-- Description:
+- Command type (slash/prefix/both): **Slash command**
+- Description: Create your own booster role with custom styling
 - Arguments/options:
-- Permissions required:
+  - `color` (required): Primary color for the role (hex code or color name)
+  - `second_color` (optional): Secondary color for future gradient/styling features
+  - `name` (required): Custom name for the booster role
+- Permissions required: **Booster Only** (user must have Nitro boost status in the guild)
 
 ### Discord Interactions:
-- Message types (text/embed/buttons/modals):
-- Event handling requirements:
+- Message types (text/embed/buttons/modals): **Embeds** for success/error responses
+- Event handling requirements: 
+  - Slash command interaction handling
+  - Role creation via Discord API
+  - Role assignment to user
+  - Booster status verification
 - Expected user flow:
+  1. User types `/boosterrole color:#FF0000 name:"My Cool Role"`
+  2. Bot verifies user has booster status
+  3. Bot creates role with specified name and color
+  4. Bot assigns role to user
+  5. Bot responds with success embed
 
 ### Symptoms/Behaviors (if updating existing feature):
-
+**N/A** - This is a new feature implementation
 
 ### Expected Outcomes:
+1. **Command Registration**: A new `/boosterrole` slash command appears in Discord
+2. **Permission Validation**: Command only executes for users with server booster status
+3. **Role Creation**: Successfully creates a new Discord role with specified parameters
+4. **Role Assignment**: Automatically assigns the newly created role to the commanding user
+5. **Error Handling**: Appropriate responses for non-boosters, invalid colors, API limitations
 
 
 

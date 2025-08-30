@@ -45,16 +45,41 @@
 ## Feature Details:
 
 ### Name:
-
+**Dynamic Prefix Configuration System**
 
 ### Intended Function/Feature:
+Implementation of a comprehensive prefix configuration command group that allows server administrators to customize the bot's command prefix on a per-guild basis. The system will include:
 
+- **View Command** (`prefix` or `prefix view`): Display the current prefix configuration for the guild
+- **Set Command** (`prefix set <new_prefix>`): Update the guild's command prefix to a custom value
+- **Remove Command** (`prefix remove` or `prefix reset`): Revert to the default prefix defined in environment configuration
 
+Key capabilities:
+- Per-guild prefix persistence (database or config storage)
+- Validation of prefix format (length limits, allowed characters)
+- Permission restrictions (admin/manage guild only)
+- Real-time prefix updates without bot restart
+- Support for both slash commands and dynamic prefix commands
 
 ### Symptoms/Behaviors (if update):
-
+*N/A - This is a new feature implementation*
 
 ### Expected Outcomes:
+1. **User Experience:**
+   - Server admins can customize bot prefix to avoid conflicts with other bots
+   - Users can check current prefix if forgotten
+   - Smooth transition between prefixes without disruption
+
+2. **Technical Implementation:**
+   - New command module in `src/commands/prefix.rs`
+   - Database/storage integration for prefix persistence
+   - Update to command framework to support dynamic prefix resolution
+   - Integration with existing `Settings` configuration system
+
+3. **Command Behaviors:**
+   - `!prefix` → Shows current prefix (e.g., "Current prefix: !")
+   - `!prefix set >>` → Changes prefix to ">>"
+   - `>>prefix remove` → Reverts to default "!" prefix
 
 
 
