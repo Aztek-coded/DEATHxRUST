@@ -55,29 +55,40 @@ pub async fn dominant(ctx: Context<'_>) -> Result<(), Error> {
         avatar_url
     );
 
-    let dominant_color = match extract_dominant_color(&avatar_url).await {
-        Ok(color) => {
-            debug!("Dominant color extracted: #{:06X}", color);
-            color
+    let (primary_color, secondary_color) = match extract_dual_colors(&avatar_url).await {
+        Ok(colors) => {
+            colors
         }
         Err(e) => {
-            error!(
-                "Avatar processing failed for user {}: {}",
+            warn!(
+                "Dual color extraction failed for user {}: {}, falling back to single color",
                 ctx.author().id,
                 e
             );
-            let embed = EmbedBuilder::error(
-                "❌ Processing Failed",
-                &format!("Failed to process your avatar: {}", e),
-            );
-            ctx.send(poise::CreateReply::default().embed(embed)).await?;
-            return Ok(());
+            match extract_dominant_color(&avatar_url).await {
+                Ok(color) => {
+                    (color, color)
+                }
+                Err(fallback_e) => {
+                    error!(
+                        "Avatar processing completely failed for user {}: {}",
+                        ctx.author().id,
+                        fallback_e
+                    );
+                    let embed = EmbedBuilder::error(
+                        "❌ Processing Failed",
+                        &format!("Failed to process your avatar: {}", fallback_e),
+                    );
+                    ctx.send(poise::CreateReply::default().embed(embed)).await?;
+                    return Ok(());
+                }
+            }
         }
     };
 
     let booster_role = find_or_create_booster_role(ctx, &member).await?;
 
-    let color = Colour::from(dominant_color);
+    let color = Colour::from(primary_color);
 
     match guild_id
         .edit_role(&ctx.http(), booster_role, EditRole::new().colour(color))
@@ -85,12 +96,13 @@ pub async fn dominant(ctx: Context<'_>) -> Result<(), Error> {
     {
         Ok(_) => {
             info!(
-                "Updated booster role color for user {} to #{:06X}",
+                "Updated booster role for user {} - Primary: #{:06X}, Secondary: #{:06X} (role: primary)",
                 ctx.author().id,
-                dominant_color
+                primary_color,
+                secondary_color
             );
 
-            let embed = create_success_embed(dominant_color, color);
+            let embed = create_dual_color_success_embed(primary_color, secondary_color, color);
             ctx.send(poise::CreateReply::default().embed(embed)).await?;
         }
         Err(e) => {
@@ -158,6 +170,15 @@ async fn find_or_create_booster_role(
     Ok(new_role.id)
 }
 
+async fn extract_dual_colors(avatar_url: &str) -> Result<(u32, u32), Error> {
+    use crate::utils::image_processor;
+
+    let image_data = image_processor::fetch_avatar(avatar_url).await?;
+    let colors = image_processor::extract_dual_colors(&image_data)?;
+
+    Ok(colors)
+}
+
 async fn extract_dominant_color(avatar_url: &str) -> Result<u32, Error> {
     use crate::utils::image_processor;
 
@@ -167,19 +188,50 @@ async fn extract_dominant_color(avatar_url: &str) -> Result<u32, Error> {
     Ok(color)
 }
 
-fn create_success_embed(hex_color: u32, discord_color: Colour) -> CreateEmbed {
-    let r = (hex_color >> 16) & 0xFF;
-    let g = (hex_color >> 8) & 0xFF;
-    let b = hex_color & 0xFF;
+fn create_dual_color_success_embed(
+    primary: u32,
+    secondary: u32,
+    discord_color: Colour,
+) -> CreateEmbed {
+    let primary_r = (primary >> 16) & 0xFF;
+    let primary_g = (primary >> 8) & 0xFF;
+    let primary_b = primary & 0xFF;
+
+    let secondary_r = (secondary >> 16) & 0xFF;
+    let secondary_g = (secondary >> 8) & 0xFF;
+    let secondary_b = secondary & 0xFF;
+
+    let is_same_color = primary == secondary;
+
+    let description = if is_same_color {
+        format!(
+            "Your booster role color has been set to your avatar's dominant color!\n\n\
+            **🎨 Color:** #{:06X}\n\
+            **RGB:** ({}, {}, {})",
+            primary, primary_r, primary_g, primary_b
+        )
+    } else {
+        format!(
+            "Your booster role color has been set based on your avatar's dual color analysis!\n\n\
+            **🎨 Primary Color** (Applied to Role)\n\
+            **Hex:** #{:06X} | **RGB:** ({}, {}, {})\n\n\
+            **🎨 Secondary Color** (Reference)\n\
+            **Hex:** #{:06X} | **RGB:** ({}, {}, {})\n\n\
+            💡 *Discord roles support only one color, so the primary color was applied to your role.*",
+            primary, primary_r, primary_g, primary_b,
+            secondary, secondary_r, secondary_g, secondary_b
+        )
+    };
+
+    let title = if is_same_color {
+        "✅ Color Updated"
+    } else {
+        "✅ Dual Colors Extracted"
+    };
 
     CreateEmbed::default()
-        .title("✅ Color Updated")
-        .description(format!(
-            "Your booster role color has been set to your avatar's dominant color!\n\n\
-            **Hex:** #{:06X}\n\
-            **RGB:** ({}, {}, {})",
-            hex_color, r, g, b
-        ))
+        .title(title)
+        .description(description)
         .color(discord_color)
-        .thumbnail("https://via.placeholder.com/150/".to_string() + &format!("{:06X}", hex_color))
+        .thumbnail("https://via.placeholder.com/150/".to_string() + &format!("{:06X}", primary))
 }

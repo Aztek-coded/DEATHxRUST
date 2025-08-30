@@ -19,7 +19,7 @@
 ## Description:
 
 ```
-For prefix commands, when executing there should be a high level function that causes the {bot name} is typing... message to alert user that the execution is taking place
+There should be a command with a top level function that tests all the responses of a given command. including error commands, success response, warnings, help message, etc. This is to be able to view that the colors align with the development guidelines and to ensure responses are concise and not overlery verbose. May require some type of alignmnet across all response types to be able to dynamically and programatically test and view all the responses of a given command
 ```
 
 

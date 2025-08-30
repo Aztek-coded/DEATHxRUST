@@ -45,40 +45,40 @@
 ## Feature Details:
 
 ### Command/Feature Name:
-**Booster Role Dominant Color Command (`boosterrole dominant`)**
+**Dual Color Avatar Extraction for Boosterrole Dominant Command**
 
 ### Intended Functionality:
-- Command type (slash/prefix/both): **Slash command**
-- Description: Set booster role color to the most dominant color in your avatar
-- Arguments/options: **None** - Command automatically extracts color from user's avatar
+- Command type (slash/prefix/both): **Enhancement to existing slash/prefix command**
+- Description: Enhance existing `boosterrole dominant` command to extract **top 2 dominant colors** from user's avatar for dual color roles
+- Arguments/options: **None** - Command automatically extracts dual colors from user's avatar
 - Permissions required: **Booster Only** (user must have Nitro boost status in the guild)
 
 ### Discord Interactions:
-- Message types (text/embed/buttons/modals): **Embeds** for success/error responses with color preview
+- Message types (text/embed/buttons/modals): **Enhanced embeds** showing both primary and secondary colors with dual previews
 - Event handling requirements: 
-  - Slash command interaction handling
-  - Avatar image fetching and processing
-  - Color extraction algorithm execution
-  - Role color update via Discord API
-  - Booster status verification
+  - Enhanced avatar image processing for dual color extraction
+  - Dual color role application via Discord API
+  - Backward compatibility with existing single color functionality
 - Expected user flow:
   1. User types `/boosterrole dominant`
   2. Bot verifies user has booster status
   3. Bot fetches user's avatar image
-  4. Bot analyzes avatar to extract dominant color
-  5. Bot updates user's booster role with extracted color
-  6. Bot responds with success embed showing the color
+  4. Bot analyzes avatar to extract **top 2 dominant colors**
+  5. Bot updates user's booster role with dual colors (primary + secondary)
+  6. Bot responds with enhanced embed showing both colors
 
 ### Symptoms/Behaviors (if updating existing feature):
-**N/A** - This is a new feature implementation
+- **Current Behavior**: Single dominant color extraction using k-means clustering (k=5) at `src/utils/image_processor.rs:48`
+- **Current Implementation**: Returns single `u32` color value from `extract_dominant_color` function
+- **Limitation**: Single color roles don't represent complex avatars with multiple prominent colors
 
 ### Expected Outcomes:
-1. **Command Registration**: A new `/boosterrole dominant` slash command appears in Discord
-2. **Permission Validation**: Command only executes for users with server booster status
-3. **Avatar Analysis**: Successfully fetches and processes user avatar to extract dominant color
-4. **Role Color Update**: Automatically updates the user's booster role color to match avatar
-5. **Visual Feedback**: Embed response displays the extracted color hex code and preview
-6. **Error Handling**: Appropriate responses for non-boosters, no avatar, or processing failures
+1. **Dual Color Extraction**: Extract and return top 2 most prominent colors from avatar analysis
+2. **Enhanced Role Appearance**: Booster roles display with both primary and secondary colors
+3. **Backward Compatibility**: Existing single color functionality remains intact
+4. **Improved Avatar Representation**: Complex avatars with multiple colors better represented
+5. **Enhanced Visual Feedback**: Embed shows both colors with hex codes and dual preview
+6. **Discord API Integration**: Leverage Discord's new dual color role capabilities
 
 
 
@@ -87,14 +87,15 @@
 ## Reference Files:
 
 ### Required Files to Analyze:
-- `/src/commands/mod.rs` - Command registration
-- `/src/bot/framework.rs` - Poise framework setup
-- Existing command example: (e.g., `/src/commands/ping.rs`)
+- `/src/commands/boosterrole/dominant.rs` - Existing dominant color command implementation
+- `/src/commands/boosterrole/mod.rs` - Boosterrole command module structure
+- `/src/utils/image_processor.rs` - Current color extraction algorithms
+- `/src/bot/framework.rs` - Poise framework setup and command registration
 
 ### Optional Files (if needed):
-- `/src/handlers/mod.rs` - Event handlers
-- `/src/config/settings.rs` - Configuration
-- `/src/utils/error.rs` - Error handling patterns
+- `/src/utils/error.rs` - Error handling patterns for image processing
+- `/src/commands/boosterrole/color.rs` - Related color command for pattern reference
+- Existing roadmap: `.claude/roadmaps/boosterrole-dominant-color-roadmap.md`
 
 ## Reference Screenshots (if applicable):
 
