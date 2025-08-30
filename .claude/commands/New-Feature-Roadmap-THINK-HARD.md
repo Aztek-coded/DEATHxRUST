@@ -45,41 +45,21 @@
 ## Feature Details:
 
 ### Name:
-**Dynamic Prefix Configuration System**
+**Typing Indicator for Prefix Commands**
 
 ### Intended Function/Feature:
-Implementation of a comprehensive prefix configuration command group that allows server administrators to customize the bot's command prefix on a per-guild basis. The system will include:
-
-- **View Command** (`prefix` or `prefix view`): Display the current prefix configuration for the guild
-- **Set Command** (`prefix set <new_prefix>`): Update the guild's command prefix to a custom value
-- **Remove Command** (`prefix remove` or `prefix reset`): Revert to the default prefix defined in environment configuration
-
-Key capabilities:
-- Per-guild prefix persistence (database or config storage)
-- Validation of prefix format (length limits, allowed characters)
-- Permission restrictions (admin/manage guild only)
-- Real-time prefix updates without bot restart
-- Support for both slash commands and dynamic prefix commands
+Implement a high-level function that triggers Discord's typing indicator ("{bot name} is typing...") when prefix commands are being executed. This should be integrated at the Poise framework level to automatically show typing feedback for all prefix commands without requiring individual command modifications.
 
 ### Symptoms/Behaviors (if update):
-*N/A - This is a new feature implementation*
+N/A - New Feature
 
 ### Expected Outcomes:
-1. **User Experience:**
-   - Server admins can customize bot prefix to avoid conflicts with other bots
-   - Users can check current prefix if forgotten
-   - Smooth transition between prefixes without disruption
-
-2. **Technical Implementation:**
-   - New command module in `src/commands/prefix.rs`
-   - Database/storage integration for prefix persistence
-   - Update to command framework to support dynamic prefix resolution
-   - Integration with existing `Settings` configuration system
-
-3. **Command Behaviors:**
-   - `!prefix` → Shows current prefix (e.g., "Current prefix: !")
-   - `!prefix set >>` → Changes prefix to ">>"
-   - `>>prefix remove` → Reverts to default "!" prefix
+- Users will see a typing indicator in the channel when the bot is processing prefix commands
+- Provides immediate visual feedback that the command has been received and is being executed
+- Improves user experience by indicating the bot is responsive and working
+- Should work automatically for all existing and future prefix commands
+- Typing indicator should appear immediately when prefix command execution begins
+- Typing indicator should disappear when command execution completes or fails
 
 
 

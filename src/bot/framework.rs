@@ -196,25 +196,35 @@ async fn event_handler(
 ) -> Result<(), Error> {
     // Create boost handler for this event
     let boost_handler = BoostHandler::new(Arc::new(data.db_pool.clone()));
-    
+
     match event {
         FullEvent::Ready { data_about_bot, .. } => {
             println!("🤖 {} is connected and ready!", data_about_bot.user.name);
-            
+
             // Handle ready event for boost handler
             boost_handler.on_ready(ctx, data_about_bot).await;
         }
-        FullEvent::GuildMemberUpdate { old_if_available: _, new: _, event } => {
+        FullEvent::GuildMemberUpdate {
+            old_if_available: _,
+            new: _,
+            event,
+        } => {
             // Handle member updates for boost status changes - simplified approach
             boost_handler.handle_boost_change(ctx, event).await;
         }
-        FullEvent::GuildRoleDelete { guild_id, removed_role_id, removed_role_data_if_available } => {
+        FullEvent::GuildRoleDelete {
+            guild_id,
+            removed_role_id,
+            removed_role_data_if_available,
+        } => {
             // Handle role deletions to clean up database
-            boost_handler.on_guild_role_delete(
-                *guild_id, 
-                *removed_role_id, 
-                removed_role_data_if_available.clone()
-            ).await;
+            boost_handler
+                .on_guild_role_delete(
+                    *guild_id,
+                    *removed_role_id,
+                    removed_role_data_if_available.clone(),
+                )
+                .await;
         }
         _ => {}
     }

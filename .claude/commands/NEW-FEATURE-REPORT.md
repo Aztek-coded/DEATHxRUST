@@ -19,13 +19,7 @@
 ## Description:
 
 ```
-boosterrole dominant
-
-Set booster roles color to the most dominant color in avatar
-arguments
-none
-permissions
-Booster Only
+For prefix commands, when executing there should be a high level function that causes the {bot name} is typing... message to alert user that the execution is taking place
 ```
 
 

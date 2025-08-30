@@ -3,7 +3,12 @@ use crate::utils::{EmbedColor, ResponseHelper};
 use poise::serenity_prelude::{CreateEmbed, CreateEmbedFooter, Timestamp};
 
 /// Show available commands and their usage
-#[poise::command(slash_command, prefix_command, aliases("h", "commands", "cmd"))]
+#[poise::command(
+    slash_command,
+    prefix_command,
+    aliases("h", "commands", "cmd"),
+    broadcast_typing
+)]
 pub async fn help(
     ctx: Context<'_>,
     #[description = "Specific command to show help about"]

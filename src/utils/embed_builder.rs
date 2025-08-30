@@ -14,11 +14,11 @@ pub enum EmbedColor {
 impl EmbedColor {
     pub fn value(&self) -> u32 {
         match self {
-            EmbedColor::Success => 0x62CB77,   // Light green for success responses
-            EmbedColor::Error => 0x853535,     // Dark red for error responses
-            EmbedColor::Warning => 0xFFE209,   // Yellow for warning/help responses
-            EmbedColor::Info => 0xFFE209,      // Yellow for info responses (same as warning)
-            EmbedColor::Primary => 0xC6AC80,   // Beige/tan for general responses
+            EmbedColor::Success => 0x62CB77, // Light green for success responses
+            EmbedColor::Error => 0x853535,   // Dark red for error responses
+            EmbedColor::Warning => 0xFFE209, // Yellow for warning/help responses
+            EmbedColor::Info => 0xFFE209,    // Yellow for info responses (same as warning)
+            EmbedColor::Primary => 0xC6AC80, // Beige/tan for general responses
             EmbedColor::Secondary => 0x95A5A6, // Gray (unchanged)
             EmbedColor::Custom(color) => *color,
         }

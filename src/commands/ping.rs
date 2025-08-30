@@ -3,7 +3,12 @@ use crate::utils::{EmbedBuilder, EmbedColor, ResponseHelper};
 use poise::serenity_prelude::CreateEmbed;
 
 /// Check if the bot is responsive and show latency information
-#[poise::command(slash_command, prefix_command, aliases("p", "pong", "latency"))]
+#[poise::command(
+    slash_command,
+    prefix_command,
+    aliases("p", "pong", "latency"),
+    broadcast_typing
+)]
 pub async fn ping(ctx: Context<'_>) -> Result<(), Error> {
     let start = std::time::Instant::now();
 

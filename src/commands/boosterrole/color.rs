@@ -13,7 +13,8 @@ use serenity::prelude::Mentionable;
         "en-US",
         "Create or update your custom booster role with personalized name and color"
     ),
-    aliases("colour")
+    aliases("colour"),
+    broadcast_typing
 )]
 pub async fn color(
     ctx: Context<'_>,
@@ -85,7 +86,7 @@ pub async fn color(
 
         let embed = EmbedBuilder::error(
             "❌ Inappropriate Role Name",
-            "The role name contains words that are not allowed. Please choose a different name."
+            "The role name contains words that are not allowed. Please choose a different name.",
         );
 
         ctx.send(poise::CreateReply::default().embed(embed)).await?;

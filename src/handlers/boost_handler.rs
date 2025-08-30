@@ -21,7 +21,7 @@ impl BoostHandler {
         // For now, we'll check the database and Discord API directly
         // since GuildMemberUpdateEvent doesn't contain old member info
         // This is a simplified approach - in production, you might want to cache member states
-        
+
         // Get the member's current premium status
         let current_member = match guild_id.member(&ctx.http, user_id).await {
             Ok(member) => member,
@@ -175,7 +175,7 @@ impl BoostHandler {
             }
         };
 
-        let role_ids: std::collections::HashSet<serenity::all::RoleId> = 
+        let role_ids: std::collections::HashSet<serenity::all::RoleId> =
             guild_roles.iter().map(|role| role.id).collect();
 
         let mut orphaned_count = 0;
@@ -235,7 +235,7 @@ impl BoostHandler {
 
         // Clean up orphaned roles for all guilds on startup
         let guilds: Vec<GuildId> = ready.guilds.iter().map(|g| g.id).collect();
-        
+
         for guild_id in guilds {
             self.cleanup_orphaned_roles(ctx, guild_id).await;
         }
@@ -244,7 +244,12 @@ impl BoostHandler {
     }
 
     /// Handle role deletions to clean up database
-    pub async fn on_guild_role_delete(&self, guild_id: GuildId, removed_role_id: serenity::all::RoleId, _role_data_if_available: Option<Role>) {
+    pub async fn on_guild_role_delete(
+        &self,
+        guild_id: GuildId,
+        removed_role_id: serenity::all::RoleId,
+        _role_data_if_available: Option<Role>,
+    ) {
         tracing::debug!(
             guild_id = %guild_id,
             role_id = %removed_role_id,
@@ -281,11 +286,13 @@ impl BoostHandler {
         }
 
         // Also clean up any role links with this role ID
-        match sqlx::query("DELETE FROM booster_role_links WHERE guild_id = ? AND linked_role_id = ?")
-            .bind(guild_id.get() as i64)
-            .bind(role_id_i64)
-            .execute(&*self.db_pool)
-            .await
+        match sqlx::query(
+            "DELETE FROM booster_role_links WHERE guild_id = ? AND linked_role_id = ?",
+        )
+        .bind(guild_id.get() as i64)
+        .bind(role_id_i64)
+        .execute(&*self.db_pool)
+        .await
         {
             Ok(result) => {
                 if result.rows_affected() > 0 {

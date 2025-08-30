@@ -30,11 +30,13 @@ impl ContentFilter {
             "Refreshing content filter cache"
         );
 
-        let words = crate::data::models::RoleNameBlacklist::get_all_for_guild(&self.db_pool, self.guild_id).await?;
-        
+        let words =
+            crate::data::models::RoleNameBlacklist::get_all_for_guild(&self.db_pool, self.guild_id)
+                .await?;
+
         let mut cache = self.cached_words.write().await;
         cache.clear();
-        
+
         for word in words {
             cache.insert(word.to_lowercase());
         }
@@ -156,7 +158,6 @@ pub struct ContentFilterStats {
     pub guild_id: serenity::all::GuildId,
 }
 
-
 #[cfg(test)]
 mod tests {
     use super::*;
@@ -171,10 +172,10 @@ mod tests {
         // let db_pool = setup_test_db().await;
         // let guild_id = GuildId::new(12345);
         // let filter = ContentFilter::new(guild_id, db_pool);
-        // 
+        //
         // // Test that empty cache doesn't match anything
         // assert!(!filter.contains_blacklisted_content("hello world").await.unwrap());
-        // 
+        //
         // // Add word to blacklist and test detection
         // filter.add_word_to_cache("badword").await;
         // assert!(filter.contains_blacklisted_content("this contains badword").await.unwrap());
@@ -186,7 +187,7 @@ mod tests {
         // Test that blacklist matching is case-insensitive
         // let filter = setup_test_filter().await;
         // filter.add_word_to_cache("BadWord").await;
-        // 
+        //
         // assert!(filter.contains_blacklisted_content("BADWORD").await.unwrap());
         // assert!(filter.contains_blacklisted_content("badword").await.unwrap());
         // assert!(filter.contains_blacklisted_content("BadWord").await.unwrap());

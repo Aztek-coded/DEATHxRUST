@@ -17,12 +17,10 @@ use list::list;
     prefix_command,
     guild_only,
     category = "Booster",
-    description_localized(
-        "en-US",
-        "Manage custom booster roles with colors, links, and filters"
-    ),
+    description_localized("en-US", "Manage custom booster roles with colors, links, and filters"),
     subcommands("color", "dominant", "link", "filter", "list"),
-    aliases("br", "booster")
+    aliases("br", "booster"),
+    broadcast_typing
 )]
 pub async fn boosterrole(ctx: Context<'_>) -> Result<(), Error> {
     let embed = crate::utils::EmbedBuilder::info(
@@ -35,7 +33,7 @@ pub async fn boosterrole(ctx: Context<'_>) -> Result<(), Error> {
         `/boosterrole filter remove <word>` - Remove word from blacklist (Admin)\n\
         `/boosterrole filter list` - View blacklisted words (Admin)\n\
         `/boosterrole list` - View all booster roles (Admin)\n\n\
-        **Aliases:** `!br dom`, `!br avatar`, `!br auto`, `!booster dominant`"
+        **Aliases:** `!br dom`, `!br avatar`, `!br auto`, `!booster dominant`",
     );
 
     ctx.send(poise::CreateReply::default().embed(embed)).await?;

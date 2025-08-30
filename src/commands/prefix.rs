@@ -9,7 +9,8 @@ use poise::serenity_prelude as serenity;
     guild_only,
     category = "Configuration",
     description_localized("en-US", "Manage the bot's command prefix for this server"),
-    aliases("pre", "pfx", "pref")
+    aliases("pre", "pfx", "pref"),
+    broadcast_typing
 )]
 pub async fn prefix(ctx: Context<'_>) -> Result<(), Error> {
     // Default action shows the current prefix
@@ -22,7 +23,8 @@ pub async fn prefix(ctx: Context<'_>) -> Result<(), Error> {
     guild_only,
     rename = "view",
     description_localized("en-US", "Display the current guild's prefix configuration"),
-    aliases("v", "show", "current")
+    aliases("v", "show", "current"),
+    broadcast_typing
 )]
 
 pub async fn view(ctx: Context<'_>) -> Result<(), Error> {
@@ -65,7 +67,8 @@ async fn view_prefix(ctx: Context<'_>) -> Result<(), Error> {
     required_permissions = "MANAGE_GUILD",
     rename = "set",
     description_localized("en-US", "Set a custom prefix for this guild"),
-    aliases("s", "change", "update")
+    aliases("s", "change", "update"),
+    broadcast_typing
 )]
 pub async fn set(
     ctx: Context<'_>,
@@ -129,7 +132,8 @@ pub async fn set(
     required_permissions = "MANAGE_GUILD",
     rename = "remove",
     description_localized("en-US", "Remove the custom prefix and revert to default"),
-    aliases("r", "rm", "delete")
+    aliases("r", "rm", "delete"),
+    broadcast_typing
 )]
 pub async fn remove(ctx: Context<'_>) -> Result<(), Error> {
     reset_prefix(ctx).await
@@ -142,7 +146,8 @@ pub async fn remove(ctx: Context<'_>) -> Result<(), Error> {
     required_permissions = "MANAGE_GUILD",
     rename = "reset",
     description_localized("en-US", "Reset the guild prefix to default"),
-    aliases("default", "clear")
+    aliases("default", "clear"),
+    broadcast_typing
 )]
 pub async fn reset(ctx: Context<'_>) -> Result<(), Error> {
     reset_prefix(ctx).await

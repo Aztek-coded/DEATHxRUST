@@ -14,7 +14,8 @@ use serenity::prelude::Mentionable;
     description_localized(
         "en-US",
         "Link an existing role to a booster member for management purposes"
-    )
+    ),
+    broadcast_typing
 )]
 pub async fn link(
     ctx: Context<'_>,
@@ -43,7 +44,7 @@ pub async fn link(
     if role.managed || role.id.get() == guild_id.get() {
         let embed = EmbedBuilder::error(
             "❌ Invalid Role",
-            "Cannot link system roles, managed roles, or the @everyone role."
+            "Cannot link system roles, managed roles, or the @everyone role.",
         );
 
         ctx.send(poise::CreateReply::default().embed(embed)).await?;
@@ -76,7 +77,7 @@ pub async fn link(
 
         let embed = EmbedBuilder::error(
             "❌ Link Creation Failed",
-            "Failed to link the role to the booster. Please try again."
+            "Failed to link the role to the booster. Please try again.",
         );
 
         ctx.send(poise::CreateReply::default().embed(embed)).await?;

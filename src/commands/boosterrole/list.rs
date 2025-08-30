@@ -11,11 +11,9 @@ use serenity::prelude::Mentionable;
     prefix_command,
     guild_only,
     required_permissions = "MANAGE_GUILD",
-    description_localized(
-        "en-US",
-        "View all custom booster roles created in this server"
-    ),
-    aliases("ls")
+    description_localized("en-US", "View all custom booster roles created in this server"),
+    aliases("ls"),
+    broadcast_typing
 )]
 pub async fn list(ctx: Context<'_>) -> Result<(), Error> {
     let guild_id = ctx
@@ -47,7 +45,7 @@ pub async fn list(ctx: Context<'_>) -> Result<(), Error> {
 
             let embed = EmbedBuilder::error(
                 "❌ Database Error",
-                "Failed to fetch booster roles. Please try again."
+                "Failed to fetch booster roles. Please try again.",
             );
 
             ctx.send(poise::CreateReply::default().embed(embed)).await?;
@@ -75,14 +73,22 @@ pub async fn list(ctx: Context<'_>) -> Result<(), Error> {
     let page_roles = &booster_roles[start_idx..end_idx];
 
     let mut role_descriptions = Vec::new();
-    
+
     for (i, role) in page_roles.iter().enumerate() {
         let user_mention = UserId::new(role.user_id as u64).mention();
         let role_mention = format!("<@&{}>", role.role_id);
-        
-        let created_at = role.created_at
+
+        let created_at = role
+            .created_at
             .as_ref()
-            .map(|dt| format!("<t:{}:R>", chrono::DateTime::parse_from_str(dt, "%Y-%m-%d %H:%M:%S").map(|dt| dt.timestamp()).unwrap_or(0)))
+            .map(|dt| {
+                format!(
+                    "<t:{}:R>",
+                    chrono::DateTime::parse_from_str(dt, "%Y-%m-%d %H:%M:%S")
+                        .map(|dt| dt.timestamp())
+                        .unwrap_or(0)
+                )
+            })
             .unwrap_or_else(|| "Unknown".to_string());
 
         let description = format!(

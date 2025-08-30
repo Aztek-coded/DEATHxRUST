@@ -4,7 +4,12 @@ use poise::serenity_prelude::{CreateEmbed, CreateEmbedFooter, Timestamp};
 use serenity::all::{PremiumTier, User};
 
 /// Get information about the server, a user, or the bot
-#[poise::command(slash_command, prefix_command, aliases("i", "information", "stats"))]
+#[poise::command(
+    slash_command,
+    prefix_command,
+    aliases("i", "information", "stats"),
+    broadcast_typing
+)]
 pub async fn info(
     ctx: Context<'_>,
     #[description = "What to get info about (server/user/bot)"] info_type: Option<String>,

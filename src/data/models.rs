@@ -217,7 +217,10 @@ impl BoosterRole {
         Ok(deleted)
     }
 
-    pub async fn get_all_for_guild(pool: &SqlitePool, guild_id: GuildId) -> Result<Vec<Self>, sqlx::Error> {
+    pub async fn get_all_for_guild(
+        pool: &SqlitePool,
+        guild_id: GuildId,
+    ) -> Result<Vec<Self>, sqlx::Error> {
         tracing::debug!(
             "Database query: get_all_booster_roles for guild {}",
             guild_id
@@ -321,11 +324,12 @@ impl BoosterRoleLink {
             guild_id
         );
 
-        let result = sqlx::query("DELETE FROM booster_role_links WHERE guild_id = ? AND user_id = ?")
-            .bind(guild_id.get() as i64)
-            .bind(user_id.get() as i64)
-            .execute(pool)
-            .await?;
+        let result =
+            sqlx::query("DELETE FROM booster_role_links WHERE guild_id = ? AND user_id = ?")
+                .bind(guild_id.get() as i64)
+                .bind(user_id.get() as i64)
+                .execute(pool)
+                .await?;
 
         let deleted = result.rows_affected() > 0;
 
@@ -351,11 +355,11 @@ pub struct RoleNameBlacklist {
 }
 
 impl RoleNameBlacklist {
-    pub async fn get_all_for_guild(pool: &SqlitePool, guild_id: GuildId) -> Result<Vec<String>, sqlx::Error> {
-        tracing::debug!(
-            "Database query: get_blacklist for guild {}",
-            guild_id
-        );
+    pub async fn get_all_for_guild(
+        pool: &SqlitePool,
+        guild_id: GuildId,
+    ) -> Result<Vec<String>, sqlx::Error> {
+        tracing::debug!("Database query: get_blacklist for guild {}", guild_id);
 
         let results = sqlx::query_scalar::<_, String>(
             "SELECT word FROM role_name_blacklist WHERE guild_id = ? ORDER BY word ASC",
@@ -447,13 +451,13 @@ impl RoleNameBlacklist {
     ) -> Result<bool, sqlx::Error> {
         let blacklist = Self::get_all_for_guild(pool, guild_id).await?;
         let text_lower = text.to_lowercase();
-        
+
         for word in &blacklist {
             if text_lower.contains(&word.to_lowercase()) {
                 return Ok(true);
             }
         }
-        
+
         Ok(false)
     }
 }

@@ -3,7 +3,12 @@ use crate::utils::{EmbedColor, ResponseHelper};
 use poise::serenity_prelude::{CreateEmbed, CreateEmbedFooter, Timestamp};
 
 /// Display cache statistics and information
-#[poise::command(slash_command, prefix_command, aliases("cache", "c", "status"))]
+#[poise::command(
+    slash_command,
+    prefix_command,
+    aliases("cache", "c", "status"),
+    broadcast_typing
+)]
 pub async fn cache_status(ctx: Context<'_>) -> Result<(), Error> {
     // Extract all cache data before any await points to avoid Send issues
     let cache_data = {

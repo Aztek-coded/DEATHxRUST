@@ -13,7 +13,8 @@ use poise::serenity_prelude as serenity;
         "en-US",
         "Manage blacklisted words that cannot be used in booster role names"
     ),
-    subcommands("add", "remove", "list")
+    subcommands("add", "remove", "list"),
+    broadcast_typing
 )]
 pub async fn filter(ctx: Context<'_>) -> Result<(), Error> {
     let embed = EmbedBuilder::info(
@@ -21,7 +22,7 @@ pub async fn filter(ctx: Context<'_>) -> Result<(), Error> {
         "**Available subcommands:**\n\n\
         `/boosterrole filter add <word>` - Add word to blacklist\n\
         `/boosterrole filter remove <word>` - Remove word from blacklist\n\
-        `/boosterrole filter list` - View all blacklisted words"
+        `/boosterrole filter list` - View all blacklisted words",
     );
 
     ctx.send(poise::CreateReply::default().embed(embed)).await?;
@@ -37,7 +38,8 @@ pub async fn filter(ctx: Context<'_>) -> Result<(), Error> {
     description_localized(
         "en-US",
         "Add a word to the blacklist that cannot be used in booster role names"
-    )
+    ),
+    broadcast_typing
 )]
 pub async fn add(
     ctx: Context<'_>,
@@ -61,7 +63,7 @@ pub async fn add(
     if word.trim().is_empty() {
         let embed = EmbedBuilder::error(
             "❌ Invalid Word",
-            "Cannot add empty words to the blacklist."
+            "Cannot add empty words to the blacklist.",
         );
 
         ctx.send(poise::CreateReply::default().embed(embed)).await?;
@@ -71,7 +73,7 @@ pub async fn add(
     if word.len() > 50 {
         let embed = EmbedBuilder::error(
             "❌ Word Too Long",
-            "Blacklisted words cannot be longer than 50 characters."
+            "Blacklisted words cannot be longer than 50 characters.",
         );
 
         ctx.send(poise::CreateReply::default().embed(embed)).await?;
@@ -83,10 +85,7 @@ pub async fn add(
         Ok(true) => {
             let embed = serenity::CreateEmbed::new()
                 .title("✅ Word Added to Blacklist")
-                .description(format!(
-                    "boosterrole name blacklisted: **{}**",
-                    word.trim()
-                ))
+                .description(format!("boosterrole name blacklisted: **{}**", word.trim()))
                 .color(EmbedColor::Success.value())
                 .footer(serenity::CreateEmbedFooter::new(format!(
                     "Added by {}",
@@ -106,7 +105,7 @@ pub async fn add(
         Ok(false) => {
             let embed = EmbedBuilder::warning(
                 "⚠️ Word Already Exists",
-                &format!("The word **{}** is already in the blacklist.", word.trim())
+                &format!("The word **{}** is already in the blacklist.", word.trim()),
             );
 
             ctx.send(poise::CreateReply::default().embed(embed)).await?;
@@ -122,7 +121,7 @@ pub async fn add(
 
             let embed = EmbedBuilder::error(
                 "❌ Database Error",
-                "Failed to add the word to the blacklist. Please try again."
+                "Failed to add the word to the blacklist. Please try again.",
             );
 
             ctx.send(poise::CreateReply::default().embed(embed)).await?;
@@ -141,7 +140,8 @@ pub async fn add(
     description_localized(
         "en-US",
         "Remove a word from the blacklist so it can be used in booster role names"
-    )
+    ),
+    broadcast_typing
 )]
 pub async fn remove(
     ctx: Context<'_>,
@@ -189,7 +189,7 @@ pub async fn remove(
         Ok(false) => {
             let embed = EmbedBuilder::warning(
                 "⚠️ Word Not Found",
-                &format!("The word **{}** is not in the blacklist.", word.trim())
+                &format!("The word **{}** is not in the blacklist.", word.trim()),
             );
 
             ctx.send(poise::CreateReply::default().embed(embed)).await?;
@@ -205,7 +205,7 @@ pub async fn remove(
 
             let embed = EmbedBuilder::error(
                 "❌ Database Error",
-                "Failed to remove the word from the blacklist. Please try again."
+                "Failed to remove the word from the blacklist. Please try again.",
             );
 
             ctx.send(poise::CreateReply::default().embed(embed)).await?;
@@ -221,11 +221,9 @@ pub async fn remove(
     prefix_command,
     guild_only,
     required_permissions = "MANAGE_GUILD",
-    description_localized(
-        "en-US",
-        "View all words that are blacklisted from booster role names"
-    ),
-    aliases("ls")
+    description_localized("en-US", "View all words that are blacklisted from booster role names"),
+    aliases("ls"),
+    broadcast_typing
 )]
 pub async fn list(ctx: Context<'_>) -> Result<(), Error> {
     let guild_id = ctx
@@ -242,25 +240,26 @@ pub async fn list(ctx: Context<'_>) -> Result<(), Error> {
     );
 
     // Get all blacklisted words
-    let blacklisted_words = match RoleNameBlacklist::get_all_for_guild(&ctx.data().db_pool, guild_id).await {
-        Ok(words) => words,
-        Err(e) => {
-            tracing::error!(
-                admin_id = %admin_id,
-                guild_id = %guild_id,
-                error = ?e,
-                "Failed to fetch blacklisted words"
-            );
+    let blacklisted_words =
+        match RoleNameBlacklist::get_all_for_guild(&ctx.data().db_pool, guild_id).await {
+            Ok(words) => words,
+            Err(e) => {
+                tracing::error!(
+                    admin_id = %admin_id,
+                    guild_id = %guild_id,
+                    error = ?e,
+                    "Failed to fetch blacklisted words"
+                );
 
-            let embed = EmbedBuilder::error(
-                "❌ Database Error",
-                "Failed to fetch the blacklist. Please try again."
-            );
+                let embed = EmbedBuilder::error(
+                    "❌ Database Error",
+                    "Failed to fetch the blacklist. Please try again.",
+                );
 
-            ctx.send(poise::CreateReply::default().embed(embed)).await?;
-            return Ok(());
-        }
-    };
+                ctx.send(poise::CreateReply::default().embed(embed)).await?;
+                return Ok(());
+            }
+        };
 
     if blacklisted_words.is_empty() {
         let embed = EmbedBuilder::primary(
