@@ -8,7 +8,8 @@ use tracing::{debug, error, info, warn};
     prefix_command,
     guild_only,
     category = "Booster",
-    description_localized("en-US", "Set your booster role color to your avatar's dominant color")
+    description_localized("en-US", "Set your booster role color to your avatar's dominant color"),
+    aliases("dom", "avatar", "auto")
 )]
 pub async fn dominant(ctx: Context<'_>) -> Result<(), Error> {
     let guild_id = ctx.guild_id().ok_or(Error::Command("Not in a guild".to_string()))?;
