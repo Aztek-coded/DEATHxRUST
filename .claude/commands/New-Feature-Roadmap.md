@@ -45,40 +45,40 @@
 ## Feature Details:
 
 ### Command/Feature Name:
-**Booster Role Creation Command (`boosterrole`)**
+**Booster Role Dominant Color Command (`boosterrole dominant`)**
 
 ### Intended Functionality:
 - Command type (slash/prefix/both): **Slash command**
-- Description: Create your own booster role with custom styling
-- Arguments/options:
-  - `color` (required): Primary color for the role (hex code or color name)
-  - `second_color` (optional): Secondary color for future gradient/styling features
-  - `name` (required): Custom name for the booster role
+- Description: Set booster role color to the most dominant color in your avatar
+- Arguments/options: **None** - Command automatically extracts color from user's avatar
 - Permissions required: **Booster Only** (user must have Nitro boost status in the guild)
 
 ### Discord Interactions:
-- Message types (text/embed/buttons/modals): **Embeds** for success/error responses
+- Message types (text/embed/buttons/modals): **Embeds** for success/error responses with color preview
 - Event handling requirements: 
   - Slash command interaction handling
-  - Role creation via Discord API
-  - Role assignment to user
+  - Avatar image fetching and processing
+  - Color extraction algorithm execution
+  - Role color update via Discord API
   - Booster status verification
 - Expected user flow:
-  1. User types `/boosterrole color:#FF0000 name:"My Cool Role"`
+  1. User types `/boosterrole dominant`
   2. Bot verifies user has booster status
-  3. Bot creates role with specified name and color
-  4. Bot assigns role to user
-  5. Bot responds with success embed
+  3. Bot fetches user's avatar image
+  4. Bot analyzes avatar to extract dominant color
+  5. Bot updates user's booster role with extracted color
+  6. Bot responds with success embed showing the color
 
 ### Symptoms/Behaviors (if updating existing feature):
 **N/A** - This is a new feature implementation
 
 ### Expected Outcomes:
-1. **Command Registration**: A new `/boosterrole` slash command appears in Discord
+1. **Command Registration**: A new `/boosterrole dominant` slash command appears in Discord
 2. **Permission Validation**: Command only executes for users with server booster status
-3. **Role Creation**: Successfully creates a new Discord role with specified parameters
-4. **Role Assignment**: Automatically assigns the newly created role to the commanding user
-5. **Error Handling**: Appropriate responses for non-boosters, invalid colors, API limitations
+3. **Avatar Analysis**: Successfully fetches and processes user avatar to extract dominant color
+4. **Role Color Update**: Automatically updates the user's booster role color to match avatar
+5. **Visual Feedback**: Embed response displays the extracted color hex code and preview
+6. **Error Handling**: Appropriate responses for non-boosters, no avatar, or processing failures
 
 
 

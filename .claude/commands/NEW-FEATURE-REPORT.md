@@ -19,52 +19,13 @@
 ## Description:
 
 ```
-New boosterrole subcommands:
+boosterrole dominant
 
-boosterrole color
-
-Get your own custom booster color role
+Set booster roles color to the most dominant color in avatar
 arguments
-color
-second color
-name
+none
 permissions
 Booster Only
-
-boosterrole link
-
-Link an existing role to be a booster role
-arguments
-member
-role
-permissions
-Manage Guild
-
-boosterrole filter
-
-Blacklist words for booster role names
-arguments
-word
-permissions
-Manage Guild
-
-boosterrole filter list
-
-Blacklisted words for booster role names
-arguments
-none
-permissions
-Manage Guild
-
-boosterrole list
-
-View all booster roles
-arguments
-none
-permissions
-Manage Guild
-
-
 ```
 
 
