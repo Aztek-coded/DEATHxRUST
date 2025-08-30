@@ -34,7 +34,8 @@ pub async fn boosterrole(ctx: Context<'_>) -> Result<(), Error> {
         `/boosterrole filter add <word>` - Add word to blacklist (Admin)\n\
         `/boosterrole filter remove <word>` - Remove word from blacklist (Admin)\n\
         `/boosterrole filter list` - View blacklisted words (Admin)\n\
-        `/boosterrole list` - View all booster roles (Admin)"
+        `/boosterrole list` - View all booster roles (Admin)\n\n\
+        **Prefix commands also work:** `!boosterrole dominant` or `!br dominant`"
     );
 
     ctx.send(poise::CreateReply::default().embed(embed)).await?;
