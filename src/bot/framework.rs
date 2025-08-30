@@ -1,5 +1,5 @@
 use crate::bot::{Data, Error, Framework};
-use crate::commands::{boosterrole, cache_status, help, info, ping, prefix};
+use crate::commands::{boosterrole, cache_status, help, info, ping, prefix, test_responses};
 use crate::config::Settings;
 use crate::data::init_database;
 use crate::handlers::BoostHandler;
@@ -9,15 +9,20 @@ use std::sync::Arc;
 
 /// Create and configure the Poise framework
 pub async fn create_framework(settings: Settings) -> Framework {
+    let mut commands = vec![
+        ping::ping(),
+        help::help(),
+        info::info(),
+        prefix::prefix(),
+        cache_status::cache_status(),
+        boosterrole::boosterrole(),
+    ];
+    
+    #[cfg(debug_assertions)]
+    commands.push(test_responses::test_responses());
+    
     let options = poise::FrameworkOptions {
-        commands: vec![
-            ping::ping(),
-            help::help(),
-            info::info(),
-            prefix::prefix(),
-            cache_status::cache_status(),
-            boosterrole::boosterrole(),
-        ],
+        commands,
         prefix_options: poise::PrefixFrameworkOptions {
             prefix: None,
             dynamic_prefix: Some(|ctx| {

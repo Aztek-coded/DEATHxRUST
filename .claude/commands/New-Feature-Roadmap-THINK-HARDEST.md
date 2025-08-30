@@ -45,9 +45,39 @@
 ## Feature Details:
 
 ### Name:
-**Booster Role Command Suite**
+**Command Response Tester**
 
 ### Intended Function/Feature:
+A development tool command that programmatically tests and displays all possible response types from any given command in the bot. This tool will:
+- Generate and display all response variations (success, error, warning, info, help) for a specified command
+- Validate that response colors align with the development guidelines (defined in `EmbedColor`)
+- Ensure response messages are concise and not overly verbose
+- Provide a unified view of all response types for consistency checking
+- Support both slash commands and prefix commands testing
+- Enable developers to quickly audit response consistency across the entire command suite
+
+### Symptoms/Behaviors (if update):
+Currently, there is no systematic way to:
+- View all response types from a command in one place
+- Verify color consistency across different response types
+- Check message verbosity and formatting consistency
+- Test error conditions without manually triggering them
+- Ensure all commands follow the established response guidelines
+
+### Expected Outcomes:
+1. **New `/test-responses` command** that accepts a command name as parameter
+2. **Comprehensive response display** showing:
+   - Success response (green - 0x62CB77)
+   - Error response (dark red - 0x853535)
+   - Warning/Help response (yellow - 0xFFE209)
+   - Info response (yellow - 0xFFE209)
+   - Primary response (beige/tan - 0xC6AC80)
+3. **Validation report** indicating:
+   - Color alignment with guidelines
+   - Message length/verbosity metrics
+   - Consistency checks across response types
+4. **Mock context creation** to simulate various command scenarios without side effects
+5. **Response audit trail** documenting which commands have been tested and their compliance status
 A comprehensive command system for Discord server boosters and administrators to manage custom booster roles. The feature enables:
 
 1. **Custom Color Roles** - Allow boosters to create personalized color roles with custom names
