@@ -2,6 +2,7 @@ pub mod color_parser;
 pub mod content_filter;
 pub mod embed_builder;
 pub mod error;
+pub mod image_processor;
 pub mod response;
 pub mod role_manager;
 

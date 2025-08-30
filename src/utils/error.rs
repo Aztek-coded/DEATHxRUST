@@ -37,4 +37,10 @@ impl From<std::io::Error> for BotError {
     }
 }
 
+impl From<reqwest::Error> for BotError {
+    fn from(err: reqwest::Error) -> Self {
+        BotError::Other(format!("HTTP request failed: {}", err))
+    }
+}
+
 pub type BotResult<T> = Result<T, BotError>;
