@@ -57,7 +57,7 @@ pub async fn test_responses(
     
     for (scenario_name, expected_color, sample_text) in &test_scenarios {
         // Create a sample embed for this scenario
-        let test_embed = CreateEmbed::new()
+        let _test_embed = CreateEmbed::new()
             .title(format!("{} - {}", command_name, scenario_name))
             .description(*sample_text)
             .color(*expected_color);

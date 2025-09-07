@@ -1,0 +1,805 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Bot Testing Dashboard - Enhanced</title>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/luxon@3.4.3/build/global/luxon.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/chartjs-adapter-luxon@1.3.1/dist/chartjs-adapter-luxon.umd.min.js"></script>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            padding: 20px;
+        }
+        
+        .dashboard-container {
+            max-width: 1600px;
+            margin: 0 auto;
+        }
+        
+        .header {
+            background: rgba(255, 255, 255, 0.95);
+            border-radius: 20px;
+            padding: 30px;
+            margin-bottom: 30px;
+            box-shadow: 0 20px 60px rgba(0,0,0,0.3);
+        }
+        
+        h1 {
+            color: #2d3748;
+            font-size: 2.5em;
+            margin-bottom: 10px;
+        }
+        
+        .subtitle {
+            color: #718096;
+            font-size: 1.1em;
+        }
+        
+        .metrics-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 20px;
+            margin-bottom: 30px;
+        }
+        
+        .metric-card {
+            background: rgba(255, 255, 255, 0.95);
+            border-radius: 15px;
+            padding: 20px;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.2);
+            transition: transform 0.3s ease;
+        }
+        
+        .metric-card:hover {
+            transform: translateY(-5px);
+        }
+        
+        .metric-label {
+            color: #718096;
+            font-size: 0.9em;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            margin-bottom: 10px;
+        }
+        
+        .metric-value {
+            font-size: 2.5em;
+            font-weight: bold;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+        }
+        
+        .metric-change {
+            font-size: 0.9em;
+            margin-top: 5px;
+        }
+        
+        .metric-change.positive {
+            color: #48bb78;
+        }
+        
+        .metric-change.negative {
+            color: #f56565;
+        }
+        
+        .charts-container {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(500px, 1fr));
+            gap: 30px;
+            margin-bottom: 30px;
+        }
+        
+        .chart-card {
+            background: rgba(255, 255, 255, 0.95);
+            border-radius: 15px;
+            padding: 25px;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.2);
+        }
+        
+        .chart-title {
+            font-size: 1.3em;
+            color: #2d3748;
+            margin-bottom: 20px;
+            font-weight: 600;
+        }
+        
+        .test-results-table {
+            background: rgba(255, 255, 255, 0.95);
+            border-radius: 15px;
+            padding: 25px;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.2);
+            overflow-x: auto;
+        }
+        
+        table {
+            width: 100%;
+            border-collapse: separate;
+            border-spacing: 0;
+        }
+        
+        th {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            padding: 15px;
+            text-align: left;
+            font-weight: 600;
+            position: sticky;
+            top: 0;
+        }
+        
+        th:first-child {
+            border-top-left-radius: 10px;
+        }
+        
+        th:last-child {
+            border-top-right-radius: 10px;
+        }
+        
+        td {
+            padding: 15px;
+            border-bottom: 1px solid #e2e8f0;
+        }
+        
+        tr:hover td {
+            background: #f7fafc;
+        }
+        
+        .status-badge {
+            display: inline-block;
+            padding: 5px 12px;
+            border-radius: 20px;
+            font-size: 0.85em;
+            font-weight: 600;
+        }
+        
+        .status-passed {
+            background: #c6f6d5;
+            color: #22543d;
+        }
+        
+        .status-failed {
+            background: #fed7d7;
+            color: #742a2a;
+        }
+        
+        .status-partial {
+            background: #feebc8;
+            color: #744210;
+        }
+        
+        .status-untested {
+            background: #e2e8f0;
+            color: #2d3748;
+        }
+        
+        .status-skipped {
+            background: #bee3f8;
+            color: #2c5282;
+        }
+        
+        .status-rejected {
+            background: #fbb6ce;
+            color: #702459;
+        }
+        
+        .performance-indicator {
+            display: inline-block;
+            margin-left: 10px;
+            font-size: 0.9em;
+        }
+        
+        .perf-good {
+            color: #48bb78;
+        }
+        
+        .perf-warning {
+            color: #ed8936;
+        }
+        
+        .perf-bad {
+            color: #f56565;
+        }
+        
+        .filters {
+            background: rgba(255, 255, 255, 0.95);
+            border-radius: 15px;
+            padding: 20px;
+            margin-bottom: 30px;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.2);
+        }
+        
+        .filter-group {
+            display: flex;
+            gap: 15px;
+            flex-wrap: wrap;
+            align-items: center;
+        }
+        
+        .filter-label {
+            font-weight: 600;
+            color: #2d3748;
+        }
+        
+        .filter-btn {
+            padding: 8px 16px;
+            border: 2px solid #e2e8f0;
+            background: white;
+            border-radius: 8px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+        
+        .filter-btn:hover {
+            border-color: #667eea;
+        }
+        
+        .filter-btn.active {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            border-color: transparent;
+        }
+        
+        .timestamp {
+            color: #718096;
+            font-size: 0.9em;
+        }
+        
+        .loading-spinner {
+            border: 3px solid #f3f3f3;
+            border-top: 3px solid #667eea;
+            border-radius: 50%;
+            width: 40px;
+            height: 40px;
+            animation: spin 1s linear infinite;
+            margin: 20px auto;
+        }
+        
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+        
+        .tooltip {
+            position: relative;
+            display: inline-block;
+        }
+        
+        .tooltip .tooltiptext {
+            visibility: hidden;
+            width: 200px;
+            background-color: #2d3748;
+            color: #fff;
+            text-align: center;
+            border-radius: 8px;
+            padding: 10px;
+            position: absolute;
+            z-index: 1;
+            bottom: 125%;
+            left: 50%;
+            margin-left: -100px;
+            opacity: 0;
+            transition: opacity 0.3s;
+        }
+        
+        .tooltip:hover .tooltiptext {
+            visibility: visible;
+            opacity: 1;
+        }
+        
+        @media (max-width: 768px) {
+            .charts-container {
+                grid-template-columns: 1fr;
+            }
+            
+            .metrics-grid {
+                grid-template-columns: 1fr;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="dashboard-container">
+        <div class="header">
+            <h1>🚀 Bot Testing Dashboard</h1>
+            <div class="subtitle">Enhanced Performance Metrics & Test Results</div>
+            <div class="timestamp">Generated: 2025-09-06 19:49:29</div>
+        </div>
+        
+        <div class="metrics-grid">
+            <div class="metric-card">
+                <div class="metric-label">Total Tests</div>
+                <div class="metric-value" id="totalTests">0</div>
+            </div>
+            
+            <div class="metric-card">
+                <div class="metric-label">Pass Rate</div>
+                <div class="metric-value" id="passRate">0%</div>
+                <div class="metric-change" id="passRateChange"></div>
+            </div>
+            
+            <div class="metric-card">
+                <div class="metric-label">Avg Response Time</div>
+                <div class="metric-value" id="avgResponseTime">0ms</div>
+                <div class="metric-change" id="responseTimeChange"></div>
+            </div>
+            
+            <div class="metric-card">
+                <div class="metric-label">Test Coverage</div>
+                <div class="metric-value" id="testCoverage">0%</div>
+            </div>
+            
+            <div class="metric-card">
+                <div class="metric-label">Performance Score</div>
+                <div class="metric-value" id="perfScore">0</div>
+                <div class="metric-change" id="perfScoreChange"></div>
+            </div>
+            
+            <div class="metric-card">
+                <div class="metric-label">Regressions</div>
+                <div class="metric-value" id="regressionCount">0</div>
+            </div>
+        </div>
+        
+        <div class="filters">
+            <div class="filter-group">
+                <span class="filter-label">Filter by Status:</span>
+                <button class="filter-btn active" onclick="filterTests('all')">All</button>
+                <button class="filter-btn" onclick="filterTests('passed')">✅ Passed</button>
+                <button class="filter-btn" onclick="filterTests('failed')">❌ Failed</button>
+                <button class="filter-btn" onclick="filterTests('partial')">⚠️ Partial</button>
+                <button class="filter-btn" onclick="filterTests('untested')">⏳ Untested</button>
+                <button class="filter-btn" onclick="filterTests('skipped')">⏭️ Skipped</button>
+                <button class="filter-btn" onclick="filterTests('rejected')">🚫 Rejected</button>
+            </div>
+        </div>
+        
+        <div class="charts-container">
+            <div class="chart-card">
+                <div class="chart-title">📊 Performance Trends</div>
+                <canvas id="performanceChart"></canvas>
+            </div>
+            
+            <div class="chart-card">
+                <div class="chart-title">📈 Test Status Distribution</div>
+                <canvas id="statusChart"></canvas>
+            </div>
+            
+            <div class="chart-card">
+                <div class="chart-title">⚡ Command Response Times</div>
+                <canvas id="responseTimeChart"></canvas>
+            </div>
+            
+            <div class="chart-card">
+                <div class="chart-title">💾 Resource Usage</div>
+                <canvas id="resourceChart"></canvas>
+            </div>
+        </div>
+        
+        <div class="test-results-table">
+            <h2 style="margin-bottom: 20px;">📋 Detailed Test Results</h2>
+            <table id="resultsTable">
+                <thead>
+                    <tr>
+                        <th>Command</th>
+                        <th>Subcommand</th>
+                        <th>Status</th>
+                        <th>Performance</th>
+                        <th>Last Tested</th>
+                        <th>Notes</th>
+                    </tr>
+                </thead>
+                <tbody id="resultsBody">
+                    <!-- Dynamic content -->
+                </tbody>
+            </table>
+        </div>
+    </div>
+    
+    <script>
+        // Test status data
+        const testStatus = {"cleanup": {"dry_run": {"status": "passed", "last_tested": "2025-09-07T02:14:12Z", "notes": ""}, "execute": {"status": "passed", "last_tested": "2025-09-07T02:14:35Z", "notes": ""}}, "limit": {"view": {"status": "passed", "last_tested": "2025-09-07T02:15:13Z", "notes": ""}, "set_limit": {"status": "untested", "last_tested": "2025-09-07T02:16:28Z", "notes": "footer is not properly displaying username of executing user"}, "set_unlimited": {"status": "untested", "last_tested": "2025-09-07T02:17:36Z", "notes": "footer isnt properly displaying username and unlimited should not be 0 instead should be a dash"}}, "rename": {"basic": {"status": "untested", "last_tested": null, "notes": ""}, "cooldown": {"status": "untested", "last_tested": null, "notes": ""}, "blacklist": {"status": "untested", "last_tested": null, "notes": ""}}, "award": {"view": {"status": "untested", "last_tested": null, "notes": ""}, "set": {"status": "untested", "last_tested": null, "notes": ""}, "unset": {"status": "untested", "last_tested": null, "notes": ""}}};
+        
+        // Performance metrics data
+        const performanceMetrics = {"sessions": [{"name": "automated_20250906_194908", "timestamp": "2025-09-07T02:49:29.570041+00:00", "metrics": [{"test_id": "cleanup_dry_run", "command": "cleanup", "subcommand": "dry_run", "start_time": 1757213348.3260128, "start_timestamp": "2025-09-07T02:49:08.326013+00:00", "system_metrics": {"cpu_percent_start": 4.2, "memory_start_mb": 26.359375, "memory_percent_start": 0.020110607147216797, "disk_io_start": {"read_count": 23889859, "write_count": 14728049, "read_bytes": 403525092864, "write_bytes": 364719312896, "read_time": 4448720, "write_time": 1606755}, "net_io_start": {"bytes_sent": 2109808640, "bytes_recv": 1189502976, "packets_sent": 4655052, "packets_recv": 24451475, "errin": 0, "errout": 0, "dropin": 0, "dropout": 0}, "cpu_percent_end": 7.2, "memory_end_mb": 26.953125, "memory_percent_end": 0.020563602447509766, "cpu_delta": 3.0, "memory_delta_mb": 0.59375, "disk_read_mb": 0.0, "disk_write_mb": 0.03515625, "net_sent_mb": 0.0, "net_recv_mb": 0.0}, "end_time": 1757213348.5839, "end_timestamp": "2025-09-07T02:49:08.584221+00:00", "execution_time_ms": 257.8871250152588, "status": "completed"}, {"test_id": "cleanup_execute", "command": "cleanup", "subcommand": "execute", "start_time": 1757213350.693131, "start_timestamp": "2025-09-07T02:49:10.693139+00:00", "system_metrics": {"cpu_percent_start": 4.2, "memory_start_mb": 26.96875, "memory_percent_start": 0.020575523376464844, "disk_io_start": {"read_count": 23889863, "write_count": 14728387, "read_bytes": 403525109248, "write_bytes": 364721090560, "read_time": 4448720, "write_time": 1606764}, "net_io_start": {"bytes_sent": 2110111744, "bytes_recv": 1189545984, "packets_sent": 4655306, "packets_recv": 24451565, "errin": 0, "errout": 0, "dropin": 0, "dropout": 0}, "cpu_percent_end": 10.6, "memory_end_mb": 27.25, "memory_percent_end": 0.02079010009765625, "cpu_delta": 6.3999999999999995, "memory_delta_mb": 0.28125, "disk_read_mb": 0.0, "disk_write_mb": 0.0, "net_sent_mb": 0.0, "net_recv_mb": 0.0}, "end_time": 1757213351.105985, "end_timestamp": "2025-09-07T02:49:11.106440+00:00", "execution_time_ms": 412.8539562225342, "status": "completed"}, {"test_id": "limit_view", "command": "limit", "subcommand": "view", "start_time": 1757213351.214437, "start_timestamp": "2025-09-07T02:49:11.214440+00:00", "system_metrics": {"cpu_percent_start": 9.7, "memory_start_mb": 27.25, "memory_percent_start": 0.02079010009765625, "disk_io_start": {"read_count": 23889863, "write_count": 14728387, "read_bytes": 403525109248, "write_bytes": 364721090560, "read_time": 4448720, "write_time": 1606764}, "net_io_start": {"bytes_sent": 2110111744, "bytes_recv": 1189545984, "packets_sent": 4655306, "packets_recv": 24451565, "errin": 0, "errout": 0, "dropin": 0, "dropout": 0}, "cpu_percent_end": 0.0, "memory_end_mb": 27.390625, "memory_percent_end": 0.020897388458251953, "cpu_delta": -9.7, "memory_delta_mb": 0.140625, "disk_read_mb": 0.0, "disk_write_mb": 0.0, "net_sent_mb": 0.0, "net_recv_mb": 0.0}, "end_time": 1757213351.5244641, "end_timestamp": "2025-09-07T02:49:11.525056+00:00", "execution_time_ms": 310.0271224975586, "status": "completed"}, {"test_id": "limit_set_limit", "command": "limit", "subcommand": "set_limit", "start_time": 1757213353.634134, "start_timestamp": "2025-09-07T02:49:13.634139+00:00", "system_metrics": {"cpu_percent_start": 13.5, "memory_start_mb": 27.40625, "memory_percent_start": 0.02090930938720703, "disk_io_start": {"read_count": 23889885, "write_count": 14728504, "read_bytes": 403525199360, "write_bytes": 364734582784, "read_time": 4448725, "write_time": 1606775}, "net_io_start": {"bytes_sent": 2110113792, "bytes_recv": 1189550080, "packets_sent": 4655332, "packets_recv": 24451589, "errin": 0, "errout": 0, "dropin": 0, "dropout": 0}, "cpu_percent_end": 12.7, "memory_end_mb": 27.4375, "memory_percent_end": 0.020933151245117188, "cpu_delta": -0.8000000000000007, "memory_delta_mb": 0.03125, "disk_read_mb": 0.18359375, "disk_write_mb": 0.0, "net_sent_mb": 0.01171875, "net_recv_mb": 0.001953125}, "end_time": 1757213353.993845, "end_timestamp": "2025-09-07T02:49:13.994033+00:00", "execution_time_ms": 359.7109317779541, "status": "completed"}, {"test_id": "limit_set_unlimited", "command": "limit", "subcommand": "set_unlimited", "start_time": 1757213356.099827, "start_timestamp": "2025-09-07T02:49:16.099832+00:00", "system_metrics": {"cpu_percent_start": 4.7, "memory_start_mb": 27.4375, "memory_percent_start": 0.020933151245117188, "disk_io_start": {"read_count": 23889943, "write_count": 14728523, "read_bytes": 403525436928, "write_bytes": 364734816256, "read_time": 4448734, "write_time": 1606779}, "net_io_start": {"bytes_sent": 2110130176, "bytes_recv": 1189559296, "packets_sent": 4655368, "packets_recv": 24451626, "errin": 0, "errout": 0, "dropin": 0, "dropout": 0}, "cpu_percent_end": 1.8, "memory_end_mb": 27.484375, "memory_percent_end": 0.020968914031982422, "cpu_delta": -2.9000000000000004, "memory_delta_mb": 0.046875, "disk_read_mb": 0.0, "disk_write_mb": 0.0390625, "net_sent_mb": 0.0009765625, "net_recv_mb": 0.001953125}, "end_time": 1757213356.6580439, "end_timestamp": "2025-09-07T02:49:16.658592+00:00", "execution_time_ms": 558.2168102264404, "status": "completed"}, {"test_id": "rename_basic", "command": "rename", "subcommand": "basic", "start_time": 1757213356.769326, "start_timestamp": "2025-09-07T02:49:16.769329+00:00", "system_metrics": {"cpu_percent_start": 3.5, "memory_start_mb": 27.484375, "memory_percent_start": 0.020968914031982422, "disk_io_start": {"read_count": 23889943, "write_count": 14728529, "read_bytes": 403525436928, "write_bytes": 364734857216, "read_time": 4448734, "write_time": 1606780}, "net_io_start": {"bytes_sent": 2110131200, "bytes_recv": 1189561344, "packets_sent": 4655378, "packets_recv": 24451636, "errin": 0, "errout": 0, "dropin": 0, "dropout": 0}, "cpu_percent_end": 7.1, "memory_end_mb": 27.484375, "memory_percent_end": 0.020968914031982422, "cpu_delta": 3.5999999999999996, "memory_delta_mb": 0.0, "disk_read_mb": 0.0, "disk_write_mb": 0.0, "net_sent_mb": 0.0, "net_recv_mb": 0.0}, "end_time": 1757213357.081627, "end_timestamp": "2025-09-07T02:49:17.082130+00:00", "execution_time_ms": 312.3009204864502, "status": "completed"}, {"test_id": "rename_cooldown", "command": "rename", "subcommand": "cooldown", "start_time": 1757213359.193434, "start_timestamp": "2025-09-07T02:49:19.193440+00:00", "system_metrics": {"cpu_percent_start": 3.6, "memory_start_mb": 27.53125, "memory_percent_start": 0.021004676818847656, "disk_io_start": {"read_count": 23889943, "write_count": 14728546, "read_bytes": 403525436928, "write_bytes": 364735066112, "read_time": 4448734, "write_time": 1606783}, "net_io_start": {"bytes_sent": 2110139392, "bytes_recv": 1189579776, "packets_sent": 4655411, "packets_recv": 24451669, "errin": 0, "errout": 0, "dropin": 0, "dropout": 0}, "cpu_percent_end": 0.0, "memory_end_mb": 27.5625, "memory_percent_end": 0.021028518676757812, "cpu_delta": -3.6, "memory_delta_mb": 0.03125, "disk_read_mb": 0.0234375, "disk_write_mb": 0.70703125, "net_sent_mb": 0.0, "net_recv_mb": 0.0}, "end_time": 1757213359.405361, "end_timestamp": "2025-09-07T02:49:19.405556+00:00", "execution_time_ms": 211.92693710327148, "status": "completed"}, {"test_id": "rename_blacklist", "command": "rename", "subcommand": "blacklist", "start_time": 1757213361.51041, "start_timestamp": "2025-09-07T02:49:21.510416+00:00", "system_metrics": {"cpu_percent_start": 12.9, "memory_start_mb": 27.578125, "memory_percent_start": 0.02104043960571289, "disk_io_start": {"read_count": 23889968, "write_count": 14728959, "read_bytes": 403525686784, "write_bytes": 364738338816, "read_time": 4448740, "write_time": 1606795}, "net_io_start": {"bytes_sent": 2110218240, "bytes_recv": 1189658624, "packets_sent": 4655485, "packets_recv": 24451747, "errin": 0, "errout": 0, "dropin": 0, "dropout": 0}, "cpu_percent_end": 3.0, "memory_end_mb": 27.578125, "memory_percent_end": 0.02104043960571289, "cpu_delta": -9.9, "memory_delta_mb": 0.0, "disk_read_mb": 0.0, "disk_write_mb": 0.0, "net_sent_mb": 0.0, "net_recv_mb": 0.0009765625}, "end_time": 1757213362.020216, "end_timestamp": "2025-09-07T02:49:22.020639+00:00", "execution_time_ms": 509.80591773986816, "status": "failed"}, {"test_id": "rename_blacklist", "command": "rename", "subcommand": "blacklist", "start_time": 1757213363.130283, "start_timestamp": "2025-09-07T02:49:23.130289+00:00", "system_metrics": {"cpu_percent_start": 3.0, "memory_start_mb": 27.578125, "memory_percent_start": 0.02104043960571289, "disk_io_start": {"read_count": 23889969, "write_count": 14728972, "read_bytes": 403525690880, "write_bytes": 364738465792, "read_time": 4448741, "write_time": 1606797}, "net_io_start": {"bytes_sent": 2110219264, "bytes_recv": 1189711872, "packets_sent": 4655505, "packets_recv": 24451796, "errin": 0, "errout": 0, "dropin": 0, "dropout": 0}, "cpu_percent_end": 3.6, "memory_end_mb": 27.578125, "memory_percent_end": 0.02104043960571289, "cpu_delta": 0.6000000000000001, "memory_delta_mb": 0.0, "disk_read_mb": 0.0, "disk_write_mb": 0.0, "net_sent_mb": 0.0, "net_recv_mb": 0.0009765625}, "end_time": 1757213363.642617, "end_timestamp": "2025-09-07T02:49:23.643024+00:00", "execution_time_ms": 512.333869934082, "status": "completed"}, {"test_id": "award_view", "command": "award", "subcommand": "view", "start_time": 1757213363.754503, "start_timestamp": "2025-09-07T02:49:23.754506+00:00", "system_metrics": {"cpu_percent_start": 5.8, "memory_start_mb": 27.59375, "memory_percent_start": 0.02105236053466797, "disk_io_start": {"read_count": 23889969, "write_count": 14728972, "read_bytes": 403525690880, "write_bytes": 364738465792, "read_time": 4448741, "write_time": 1606797}, "net_io_start": {"bytes_sent": 2110219264, "bytes_recv": 1189712896, "packets_sent": 4655507, "packets_recv": 24451797, "errin": 0, "errout": 0, "dropin": 0, "dropout": 0}, "cpu_percent_end": 4.6, "memory_end_mb": 27.59375, "memory_percent_end": 0.02105236053466797, "cpu_delta": -1.2000000000000002, "memory_delta_mb": 0.0, "disk_read_mb": 0.0, "disk_write_mb": 0.0, "net_sent_mb": 0.0, "net_recv_mb": 0.0}, "end_time": 1757213364.316203, "end_timestamp": "2025-09-07T02:49:24.316506+00:00", "execution_time_ms": 561.7001056671143, "status": "completed"}, {"test_id": "award_set", "command": "award", "subcommand": "set", "start_time": 1757213366.431083, "start_timestamp": "2025-09-07T02:49:26.431089+00:00", "system_metrics": {"cpu_percent_start": 4.2, "memory_start_mb": 27.609375, "memory_percent_start": 0.021064281463623047, "disk_io_start": {"read_count": 23889969, "write_count": 14729148, "read_bytes": 403525690880, "write_bytes": 364741238784, "read_time": 4448741, "write_time": 1606804}, "net_io_start": {"bytes_sent": 2110227456, "bytes_recv": 1189715968, "packets_sent": 4655525, "packets_recv": 24451811, "errin": 0, "errout": 0, "dropin": 0, "dropout": 0}, "cpu_percent_end": 0.0, "memory_end_mb": 27.609375, "memory_percent_end": 0.021064281463623047, "cpu_delta": -4.2, "memory_delta_mb": 0.0, "disk_read_mb": 0.0, "disk_write_mb": 0.03515625, "net_sent_mb": 0.0, "net_recv_mb": 0.0}, "end_time": 1757213366.692325, "end_timestamp": "2025-09-07T02:49:26.692830+00:00", "execution_time_ms": 261.242151260376, "status": "completed"}, {"test_id": "award_unset", "command": "award", "subcommand": "unset", "start_time": 1757213368.804197, "start_timestamp": "2025-09-07T02:49:28.804204+00:00", "system_metrics": {"cpu_percent_start": 8.1, "memory_start_mb": 27.609375, "memory_percent_start": 0.021064281463623047, "disk_io_start": {"read_count": 23889969, "write_count": 14729180, "read_bytes": 403525690880, "write_bytes": 364745920512, "read_time": 4448741, "write_time": 1606810}, "net_io_start": {"bytes_sent": 2110228480, "bytes_recv": 1189716992, "packets_sent": 4655536, "packets_recv": 24451828, "errin": 0, "errout": 0, "dropin": 0, "dropout": 0}, "cpu_percent_end": 2.4, "memory_end_mb": 27.609375, "memory_percent_end": 0.021064281463623047, "cpu_delta": -5.699999999999999, "memory_delta_mb": 0.0, "disk_read_mb": 0.015625, "disk_write_mb": 19.34765625, "net_sent_mb": 0.0, "net_recv_mb": 0.0}, "end_time": 1757213369.460565, "end_timestamp": "2025-09-07T02:49:29.460972+00:00", "execution_time_ms": 656.3680171966553, "status": "completed"}], "summary": {"total_tests": 12, "successful_tests": 11, "failed_tests": 1, "total_execution_time_ms": 4924.3738651275635, "avg_execution_time_ms": 410.3644887606303, "median_execution_time_ms": 386.28244400024414, "max_execution_time_ms": 656.3680171966553, "min_execution_time_ms": 211.92693710327148, "avg_cpu_delta": -2.033333333333333, "avg_memory_delta_mb": 0.09375}}], "commands": {"cleanup_dry_run": {"total_tests": 1, "execution_times": [257.8871250152588], "cpu_usage": [3.0], "memory_usage": [0.59375], "success_count": 1, "failure_count": 0, "last_tested": "2025-09-07T02:49:08.584221+00:00", "avg_execution_time_ms": 257.8871250152588, "min_execution_time_ms": 257.8871250152588, "max_execution_time_ms": 257.8871250152588}, "cleanup_execute": {"total_tests": 1, "execution_times": [412.8539562225342], "cpu_usage": [6.3999999999999995], "memory_usage": [0.28125], "success_count": 1, "failure_count": 0, "last_tested": "2025-09-07T02:49:11.106440+00:00", "avg_execution_time_ms": 412.8539562225342, "min_execution_time_ms": 412.8539562225342, "max_execution_time_ms": 412.8539562225342}, "limit_view": {"total_tests": 1, "execution_times": [310.0271224975586], "cpu_usage": [-9.7], "memory_usage": [0.140625], "success_count": 1, "failure_count": 0, "last_tested": "2025-09-07T02:49:11.525056+00:00", "avg_execution_time_ms": 310.0271224975586, "min_execution_time_ms": 310.0271224975586, "max_execution_time_ms": 310.0271224975586}, "limit_set_limit": {"total_tests": 1, "execution_times": [359.7109317779541], "cpu_usage": [-0.8000000000000007], "memory_usage": [0.03125], "success_count": 1, "failure_count": 0, "last_tested": "2025-09-07T02:49:13.994033+00:00", "avg_execution_time_ms": 359.7109317779541, "min_execution_time_ms": 359.7109317779541, "max_execution_time_ms": 359.7109317779541}, "limit_set_unlimited": {"total_tests": 1, "execution_times": [558.2168102264404], "cpu_usage": [-2.9000000000000004], "memory_usage": [0.046875], "success_count": 1, "failure_count": 0, "last_tested": "2025-09-07T02:49:16.658592+00:00", "avg_execution_time_ms": 558.2168102264404, "min_execution_time_ms": 558.2168102264404, "max_execution_time_ms": 558.2168102264404}, "rename_basic": {"total_tests": 1, "execution_times": [312.3009204864502], "cpu_usage": [3.5999999999999996], "memory_usage": [0.0], "success_count": 1, "failure_count": 0, "last_tested": "2025-09-07T02:49:17.082130+00:00", "avg_execution_time_ms": 312.3009204864502, "min_execution_time_ms": 312.3009204864502, "max_execution_time_ms": 312.3009204864502}, "rename_cooldown": {"total_tests": 1, "execution_times": [211.92693710327148], "cpu_usage": [-3.6], "memory_usage": [0.03125], "success_count": 1, "failure_count": 0, "last_tested": "2025-09-07T02:49:19.405556+00:00", "avg_execution_time_ms": 211.92693710327148, "min_execution_time_ms": 211.92693710327148, "max_execution_time_ms": 211.92693710327148}, "rename_blacklist": {"total_tests": 2, "execution_times": [509.80591773986816, 512.333869934082], "cpu_usage": [-9.9, 0.6000000000000001], "memory_usage": [0.0, 0.0], "success_count": 1, "failure_count": 1, "last_tested": "2025-09-07T02:49:23.643024+00:00", "avg_execution_time_ms": 511.0698938369751, "min_execution_time_ms": 509.80591773986816, "max_execution_time_ms": 512.333869934082, "std_dev_execution_time": 1.7875321390440377, "median_execution_time_ms": 511.0698938369751}, "award_view": {"total_tests": 1, "execution_times": [561.7001056671143], "cpu_usage": [-1.2000000000000002], "memory_usage": [0.0], "success_count": 1, "failure_count": 0, "last_tested": "2025-09-07T02:49:24.316506+00:00", "avg_execution_time_ms": 561.7001056671143, "min_execution_time_ms": 561.7001056671143, "max_execution_time_ms": 561.7001056671143}, "award_set": {"total_tests": 1, "execution_times": [261.242151260376], "cpu_usage": [-4.2], "memory_usage": [0.0], "success_count": 1, "failure_count": 0, "last_tested": "2025-09-07T02:49:26.692830+00:00", "avg_execution_time_ms": 261.242151260376, "min_execution_time_ms": 261.242151260376, "max_execution_time_ms": 261.242151260376}, "award_unset": {"total_tests": 1, "execution_times": [656.3680171966553], "cpu_usage": [-5.699999999999999], "memory_usage": [0.0], "success_count": 1, "failure_count": 0, "last_tested": "2025-09-07T02:49:29.460972+00:00", "avg_execution_time_ms": 656.3680171966553, "min_execution_time_ms": 656.3680171966553, "max_execution_time_ms": 656.3680171966553}}, "aggregated": {}};
+        
+        // Initialize dashboard
+        function initDashboard() {
+            updateMetrics();
+            renderCharts();
+            renderTestResults();
+        }
+        
+        // Update metric cards
+        function updateMetrics() {
+            let totalTests = 0;
+            let passedTests = 0;
+            let testedCount = 0;
+            let totalCommands = 0;
+            let totalResponseTime = 0;
+            let responseTimeCount = 0;
+            let regressions = 0;
+            
+            // Calculate metrics from test status
+            for (const command in testStatus) {
+                for (const subcommand in testStatus[command]) {
+                    totalCommands++;
+                    const test = testStatus[command][subcommand];
+                    
+                    if (test.status !== 'untested') {
+                        totalTests++;
+                        testedCount++;
+                        
+                        if (test.status === 'passed') {
+                            passedTests++;
+                        }
+                    }
+                }
+            }
+            
+            // Calculate metrics from performance data
+            if (performanceMetrics.commands) {
+                for (const cmdKey in performanceMetrics.commands) {
+                    const cmd = performanceMetrics.commands[cmdKey];
+                    if (cmd.avg_execution_time_ms) {
+                        totalResponseTime += cmd.avg_execution_time_ms;
+                        responseTimeCount++;
+                    }
+                    
+                    // Check for regressions (simplified check)
+                    if (cmd.execution_times && cmd.execution_times.length > 1) {
+                        const recent = cmd.execution_times.slice(-5);
+                        const older = cmd.execution_times.slice(0, -5);
+                        if (older.length > 0 && recent.length > 0) {
+                            const recentAvg = recent.reduce((a, b) => a + b, 0) / recent.length;
+                            const olderAvg = older.reduce((a, b) => a + b, 0) / older.length;
+                            if (recentAvg > olderAvg * 1.2) {
+                                regressions++;
+                            }
+                        }
+                    }
+                }
+            }
+            
+            // Update DOM
+            document.getElementById('totalTests').textContent = totalTests;
+            document.getElementById('passRate').textContent = totalTests > 0 
+                ? Math.round((passedTests / totalTests) * 100) + '%' 
+                : '0%';
+            document.getElementById('testCoverage').textContent = totalCommands > 0
+                ? Math.round((testedCount / totalCommands) * 100) + '%'
+                : '0%';
+            
+            const avgResponse = responseTimeCount > 0 
+                ? Math.round(totalResponseTime / responseTimeCount) 
+                : 0;
+            document.getElementById('avgResponseTime').textContent = avgResponse + 'ms';
+            
+            // Calculate performance score (0-100)
+            let perfScore = 100;
+            if (avgResponse > 1000) perfScore -= 20;
+            if (avgResponse > 2000) perfScore -= 20;
+            if (regressions > 0) perfScore -= (regressions * 10);
+            perfScore = Math.max(0, perfScore);
+            
+            document.getElementById('perfScore').textContent = perfScore;
+            document.getElementById('regressionCount').textContent = regressions;
+            
+            // Add change indicators (mock data for demo)
+            const passRateChange = document.getElementById('passRateChange');
+            passRateChange.textContent = '↑ 5%';
+            passRateChange.className = 'metric-change positive';
+            
+            const responseTimeChange = document.getElementById('responseTimeChange');
+            responseTimeChange.textContent = '↓ 50ms';
+            responseTimeChange.className = 'metric-change positive';
+            
+            const perfScoreChange = document.getElementById('perfScoreChange');
+            if (perfScore >= 80) {
+                perfScoreChange.textContent = 'Excellent';
+                perfScoreChange.className = 'metric-change positive';
+            } else if (perfScore >= 60) {
+                perfScoreChange.textContent = 'Good';
+                perfScoreChange.className = 'metric-change';
+            } else {
+                perfScoreChange.textContent = 'Needs Improvement';
+                perfScoreChange.className = 'metric-change negative';
+            }
+        }
+        
+        // Render charts
+        function renderCharts() {
+            // Performance Trends Chart
+            const perfCtx = document.getElementById('performanceChart').getContext('2d');
+            const perfChart = new Chart(perfCtx, {
+                type: 'line',
+                data: {
+                    labels: generateTimeLabels(),
+                    datasets: [{
+                        label: 'Average Response Time',
+                        data: generateMockTrendData(),
+                        borderColor: '#667eea',
+                        backgroundColor: 'rgba(102, 126, 234, 0.1)',
+                        tension: 0.4
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    plugins: {
+                        legend: {
+                            display: false
+                        }
+                    },
+                    scales: {
+                        y: {
+                            beginAtZero: true,
+                            title: {
+                                display: true,
+                                text: 'Response Time (ms)'
+                            }
+                        }
+                    }
+                }
+            });
+            
+            // Status Distribution Chart
+            const statusCtx = document.getElementById('statusChart').getContext('2d');
+            const statusData = calculateStatusDistribution();
+            const statusChart = new Chart(statusCtx, {
+                type: 'doughnut',
+                data: {
+                    labels: Object.keys(statusData),
+                    datasets: [{
+                        data: Object.values(statusData),
+                        backgroundColor: [
+                            '#48bb78',
+                            '#f56565',
+                            '#ed8936',
+                            '#a0aec0',
+                            '#4299e1',
+                            '#d53f8c'
+                        ]
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    plugins: {
+                        legend: {
+                            position: 'bottom'
+                        }
+                    }
+                }
+            });
+            
+            // Response Time by Command Chart
+            const responseCtx = document.getElementById('responseTimeChart').getContext('2d');
+            const responseData = getCommandResponseTimes();
+            const responseChart = new Chart(responseCtx, {
+                type: 'bar',
+                data: {
+                    labels: responseData.labels,
+                    datasets: [{
+                        label: 'Avg Response Time',
+                        data: responseData.data,
+                        backgroundColor: 'rgba(102, 126, 234, 0.8)'
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    plugins: {
+                        legend: {
+                            display: false
+                        }
+                    },
+                    scales: {
+                        y: {
+                            beginAtZero: true,
+                            title: {
+                                display: true,
+                                text: 'Time (ms)'
+                            }
+                        }
+                    }
+                }
+            });
+            
+            // Resource Usage Chart
+            const resourceCtx = document.getElementById('resourceChart').getContext('2d');
+            const resourceChart = new Chart(resourceCtx, {
+                type: 'radar',
+                data: {
+                    labels: ['CPU', 'Memory', 'Disk I/O', 'Network', 'Latency'],
+                    datasets: [{
+                        label: 'Current',
+                        data: [65, 45, 30, 20, 85],
+                        borderColor: '#667eea',
+                        backgroundColor: 'rgba(102, 126, 234, 0.2)'
+                    }, {
+                        label: 'Baseline',
+                        data: [60, 40, 25, 15, 70],
+                        borderColor: '#a0aec0',
+                        backgroundColor: 'rgba(160, 174, 192, 0.2)'
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    scales: {
+                        r: {
+                            beginAtZero: true,
+                            max: 100
+                        }
+                    }
+                }
+            });
+        }
+        
+        // Helper functions
+        function generateTimeLabels() {
+            const labels = [];
+            for (let i = 23; i >= 0; i--) {
+                const date = new Date();
+                date.setHours(date.getHours() - i);
+                labels.push(date.toLocaleTimeString('en-US', { hour: '2-digit', minute: '2-digit' }));
+            }
+            return labels;
+        }
+        
+        function generateMockTrendData() {
+            return Array.from({length: 24}, () => Math.floor(Math.random() * 500) + 200);
+        }
+        
+        function calculateStatusDistribution() {
+            const distribution = {
+                'Passed': 0,
+                'Failed': 0,
+                'Partial': 0,
+                'Untested': 0,
+                'Skipped': 0,
+                'Rejected': 0
+            };
+            
+            for (const command in testStatus) {
+                for (const subcommand in testStatus[command]) {
+                    const status = testStatus[command][subcommand].status;
+                    const key = status.charAt(0).toUpperCase() + status.slice(1);
+                    if (distribution.hasOwnProperty(key)) {
+                        distribution[key]++;
+                    }
+                }
+            }
+            
+            return distribution;
+        }
+        
+        function getCommandResponseTimes() {
+            const labels = [];
+            const data = [];
+            
+            if (performanceMetrics.commands) {
+                for (const cmdKey in performanceMetrics.commands) {
+                    const cmd = performanceMetrics.commands[cmdKey];
+                    if (cmd.avg_execution_time_ms) {
+                        labels.push(cmdKey.replace('_', '/'));
+                        data.push(Math.round(cmd.avg_execution_time_ms));
+                    }
+                }
+            }
+            
+            // Add mock data if no real data
+            if (labels.length === 0) {
+                return {
+                    labels: ['cleanup/dry_run', 'cleanup/execute', 'limit/view', 'limit/set'],
+                    data: [250, 450, 150, 200]
+                };
+            }
+            
+            return { labels, data };
+        }
+        
+        // Render test results table
+        function renderTestResults() {
+            const tbody = document.getElementById('resultsBody');
+            tbody.innerHTML = '';
+            
+            for (const command in testStatus) {
+                for (const subcommand in testStatus[command]) {
+                    const test = testStatus[command][subcommand];
+                    const row = document.createElement('tr');
+                    row.dataset.status = test.status;
+                    
+                    // Get performance data
+                    const perfKey = subcommand ? `${command}_${subcommand}` : command;
+                    const perf = performanceMetrics.commands && performanceMetrics.commands[perfKey];
+                    
+                    let perfIndicator = '';
+                    let perfClass = '';
+                    if (perf && perf.avg_execution_time_ms) {
+                        const avgTime = Math.round(perf.avg_execution_time_ms);
+                        if (avgTime < 500) {
+                            perfClass = 'perf-good';
+                            perfIndicator = '⚡ ' + avgTime + 'ms';
+                        } else if (avgTime < 1000) {
+                            perfClass = 'perf-warning';
+                            perfIndicator = '⚠️ ' + avgTime + 'ms';
+                        } else {
+                            perfClass = 'perf-bad';
+                            perfIndicator = '🐌 ' + avgTime + 'ms';
+                        }
+                    }
+                    
+                    row.innerHTML = `
+                        <td>${command}</td>
+                        <td>${subcommand || '-'}</td>
+                        <td><span class="status-badge status-${test.status}">${getStatusIcon(test.status)} ${test.status}</span></td>
+                        <td><span class="performance-indicator ${perfClass}">${perfIndicator || '-'}</span></td>
+                        <td class="timestamp">${formatTimestamp(test.last_tested)}</td>
+                        <td>${test.notes || '-'}</td>
+                    `;
+                    
+                    tbody.appendChild(row);
+                }
+            }
+        }
+        
+        function getStatusIcon(status) {
+            const icons = {
+                'passed': '✅',
+                'failed': '❌',
+                'partial': '⚠️',
+                'untested': '⏳',
+                'skipped': '⏭️',
+                'rejected': '🚫'
+            };
+            return icons[status] || '❓';
+        }
+        
+        function formatTimestamp(timestamp) {
+            if (!timestamp || timestamp === 'None') return 'Never';
+            try {
+                const date = new Date(timestamp);
+                return date.toLocaleString();
+            } catch {
+                return timestamp;
+            }
+        }
+        
+        // Filter tests
+        function filterTests(status) {
+            // Update button states
+            document.querySelectorAll('.filter-btn').forEach(btn => {
+                btn.classList.remove('active');
+            });
+            event.target.classList.add('active');
+            
+            // Filter table rows
+            const rows = document.querySelectorAll('#resultsBody tr');
+            rows.forEach(row => {
+                if (status === 'all') {
+                    row.style.display = '';
+                } else {
+                    row.style.display = row.dataset.status === status ? '' : 'none';
+                }
+            });
+        }
+        
+        // Initialize on load
+        document.addEventListener('DOMContentLoaded', initDashboard);
+        
+        // Auto-refresh every 30 seconds
+        setInterval(() => {
+            console.log('Refreshing dashboard...');
+            // In production, this would fetch new data via AJAX
+        }, 30000);
+    </script>
+</body>
+</html>

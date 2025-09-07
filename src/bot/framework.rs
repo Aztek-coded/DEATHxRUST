@@ -23,6 +23,48 @@ pub async fn create_framework(settings: Settings) -> Framework {
     
     let options = poise::FrameworkOptions {
         commands,
+        // Add performance tracking hooks here
+        pre_command: |ctx| {
+            Box::pin(async move {
+                // Store start time - we'll use a simple approach
+                // In production, you'd use a concurrent HashMap with command ID
+                let start = std::time::Instant::now();
+                
+                // For now, we'll track in the post_command
+                tracing::debug!("Command '{}' starting", ctx.command().name);
+            })
+        },
+        post_command: |ctx| {
+            Box::pin(async move {
+                // For simplicity, we'll measure the entire command duration here
+                // In a real implementation, you'd retrieve the start time from pre_command
+                
+                // Log that command completed
+                tracing::info!(
+                    "Command '{}' completed for user {}",
+                    ctx.command().name,
+                    ctx.author().id
+                );
+                
+                // Simple metric logging (you could enhance this)
+                let metric = serde_json::json!({
+                    "command": ctx.command().name,
+                    "user_id": ctx.author().id.get(),
+                    "guild_id": ctx.guild_id().map(|id| id.get()),
+                    "timestamp": chrono::Utc::now().to_rfc3339(),
+                });
+                
+                // Append to metrics file
+                if let Ok(mut file) = std::fs::OpenOptions::new()
+                    .create(true)
+                    .append(true)
+                    .open("test_results/command_executions.jsonl")
+                {
+                    use std::io::Write;
+                    let _ = writeln!(file, "{}", metric);
+                }
+            })
+        },
         prefix_options: poise::PrefixFrameworkOptions {
             prefix: None,
             dynamic_prefix: Some(|ctx| {

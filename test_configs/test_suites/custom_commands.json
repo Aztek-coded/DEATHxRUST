@@ -1,0 +1,23 @@
+{
+  "custom": {
+    "name": "Custom Commands",
+    "description": "User-defined custom commands for testing",
+    "commands": {
+      "example": {
+        "command": "/example",
+        "description": "Example custom command",
+        "permission_required": null,
+        "test_cases": [
+          {
+            "id": "example_test",
+            "name": "Example Test",
+            "description": "This is an example test case",
+            "discord_command": "/example param:value",
+            "expected_behavior": "Should do something",
+            "test_type": "public"
+          }
+        ]
+      }
+    }
+  }
+}

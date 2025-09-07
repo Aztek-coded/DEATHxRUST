@@ -1,0 +1,238 @@
+{
+  "session_id": "20250906_194908",
+  "timestamp": "2025-09-06T19:49:29.573693",
+  "config": {
+    "test_suites": {
+      "cleanup": [
+        {
+          "subcommand": "dry_run",
+          "args": [
+            "dry_run:true"
+          ],
+          "expected": "success"
+        },
+        {
+          "subcommand": "execute",
+          "args": [],
+          "expected": "success"
+        }
+      ],
+      "limit": [
+        {
+          "subcommand": "view",
+          "args": [],
+          "expected": "success"
+        },
+        {
+          "subcommand": "set_limit",
+          "args": [
+            "max_roles:5"
+          ],
+          "expected": "success"
+        },
+        {
+          "subcommand": "set_unlimited",
+          "args": [
+            "max_roles:0"
+          ],
+          "expected": "success"
+        }
+      ],
+      "rename": [
+        {
+          "subcommand": "basic",
+          "args": [
+            "new_name:TestRole"
+          ],
+          "expected": "success"
+        },
+        {
+          "subcommand": "cooldown",
+          "args": [],
+          "expected": "success"
+        },
+        {
+          "subcommand": "blacklist",
+          "args": [],
+          "expected": "success"
+        }
+      ],
+      "award": [
+        {
+          "subcommand": "view",
+          "args": [],
+          "expected": "success"
+        },
+        {
+          "subcommand": "set",
+          "args": [
+            "role:@TestRole"
+          ],
+          "expected": "success"
+        },
+        {
+          "subcommand": "unset",
+          "args": [],
+          "expected": "success"
+        }
+      ]
+    },
+    "execution": {
+      "parallel": false,
+      "timeout_seconds": 30,
+      "retry_on_failure": true,
+      "max_retries": 3,
+      "delay_between_tests": 2
+    },
+    "performance": {
+      "track_metrics": true,
+      "check_regression": true,
+      "save_baselines": false
+    }
+  },
+  "summary": {
+    "total_tests": 11,
+    "passed": 11,
+    "failed": 0,
+    "timeout": 0,
+    "error": 0,
+    "pass_rate": 100.0,
+    "total_time_seconds": 21.244186878204346,
+    "total_execution_time_ms": 3213.7880325317383,
+    "avg_execution_time_ms": 292.1625484119762,
+    "performance_regressions": 0,
+    "performance_improvements": 0,
+    "timestamp": "2025-09-06T19:49:29.573669"
+  },
+  "results": {
+    "cleanup": [
+      {
+        "command": "cleanup",
+        "subcommand": "dry_run",
+        "args": [
+          "dry_run:true"
+        ],
+        "start_time": 1757213348.432727,
+        "status": "passed",
+        "message": "Command executed successfully",
+        "end_time": 1757213348.583895,
+        "execution_time_ms": 151.1678695678711
+      },
+      {
+        "command": "cleanup",
+        "subcommand": "execute",
+        "args": [],
+        "start_time": 1757213350.804749,
+        "status": "passed",
+        "message": "Command executed successfully",
+        "end_time": 1757213351.105979,
+        "execution_time_ms": 301.22995376586914
+      }
+    ],
+    "limit": [
+      {
+        "command": "limit",
+        "subcommand": "view",
+        "args": [],
+        "start_time": 1757213351.323122,
+        "status": "passed",
+        "message": "Command executed successfully",
+        "end_time": 1757213351.524456,
+        "execution_time_ms": 201.33399963378906
+      },
+      {
+        "command": "limit",
+        "subcommand": "set_limit",
+        "args": [
+          "max_roles:5"
+        ],
+        "start_time": 1757213353.742692,
+        "status": "passed",
+        "message": "Command executed successfully",
+        "end_time": 1757213353.993842,
+        "execution_time_ms": 251.14989280700684
+      },
+      {
+        "command": "limit",
+        "subcommand": "set_unlimited",
+        "args": [
+          "max_roles:0"
+        ],
+        "start_time": 1757213356.207176,
+        "status": "passed",
+        "message": "Command executed successfully",
+        "end_time": 1757213356.658036,
+        "execution_time_ms": 450.86002349853516
+      }
+    ],
+    "rename": [
+      {
+        "command": "rename",
+        "subcommand": "basic",
+        "args": [
+          "new_name:TestRole"
+        ],
+        "start_time": 1757213356.880316,
+        "status": "passed",
+        "message": "Command executed successfully",
+        "end_time": 1757213357.08162,
+        "execution_time_ms": 201.30395889282227
+      },
+      {
+        "command": "rename",
+        "subcommand": "cooldown",
+        "args": [],
+        "start_time": 1757213359.304139,
+        "status": "passed",
+        "message": "Command executed successfully",
+        "end_time": 1757213359.4053571,
+        "execution_time_ms": 101.21822357177734
+      },
+      {
+        "command": "rename",
+        "subcommand": "blacklist",
+        "args": [],
+        "start_time": 1757213363.241272,
+        "status": "passed",
+        "message": "Command executed successfully",
+        "end_time": 1757213363.642609,
+        "execution_time_ms": 401.3369083404541,
+        "retries": 1
+      }
+    ],
+    "award": [
+      {
+        "command": "award",
+        "subcommand": "view",
+        "args": [],
+        "start_time": 1757213363.8647559,
+        "status": "passed",
+        "message": "Command executed successfully",
+        "end_time": 1757213364.316195,
+        "execution_time_ms": 451.43914222717285
+      },
+      {
+        "command": "award",
+        "subcommand": "set",
+        "args": [
+          "role:@TestRole"
+        ],
+        "start_time": 1757213366.5409439,
+        "status": "passed",
+        "message": "Command executed successfully",
+        "end_time": 1757213366.692319,
+        "execution_time_ms": 151.37505531311035
+      },
+      {
+        "command": "award",
+        "subcommand": "unset",
+        "args": [],
+        "start_time": 1757213368.909184,
+        "status": "passed",
+        "message": "Command executed successfully",
+        "end_time": 1757213369.460557,
+        "execution_time_ms": 551.3730049133301
+      }
+    ]
+  }
+}

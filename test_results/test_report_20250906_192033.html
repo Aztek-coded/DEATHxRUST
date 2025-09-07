@@ -1,0 +1,119 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Boosterrole Test Report</title>
+    <style>
+        body { font-family: Arial, sans-serif; margin: 20px; background: #1a1a1a; color: #e0e0e0; }
+        h1 { color: #7289da; }
+        h2 { color: #5865f2; margin-top: 30px; }
+        .stats { background: #2f3136; padding: 15px; border-radius: 8px; margin: 20px 0; }
+        .passed { color: #43b581; font-weight: bold; }
+        .failed { color: #f04747; font-weight: bold; }
+        .partial { color: #faa61a; font-weight: bold; }
+        .untested { color: #747f8d; }
+        .skipped { color: #5865f2; }
+        .rejected { color: #e91e63; font-weight: bold; }
+        table { width: 100%; border-collapse: collapse; margin: 20px 0; }
+        th { background: #2f3136; padding: 10px; text-align: left; }
+        td { padding: 10px; border-bottom: 1px solid #40444b; }
+        tr:hover { background: #36393f; }
+        .notes { font-size: 0.9em; color: #b9bbbe; }
+        .timestamp { font-size: 0.85em; color: #72767d; }
+    </style>
+</head>
+<body>
+    <h1>🧪 Boosterrole Extended Management - Test Report</h1>
+    <div class="stats">
+        <h3>Test Statistics</h3>
+<p>Generated: 2025-09-06 19:20:33</p>
+<p>Total Tests: 11</p>
+<p>Coverage: 27%</p>
+<p class='passed'>✅ Passed: 3</p>
+<p class='failed'>❌ Failed: 0</p>
+<p class='partial'>⚠️ Partial: 0</p>
+<p class='untested'>⏳ Untested: 8</p>
+<p class='skipped'>⏭️ Skipped: 0</p>
+<p class='rejected'>🚫 Rejected: 0</p>
+</div>
+<h2>Detailed Test Results</h2>
+<table>
+<tr><th>Command</th><th>Subcommand</th><th>Status</th><th>Last Tested</th><th>Notes</th></tr>
+<tr>
+<td>cleanup</td>
+<td>dry_run</td>
+<td class='passed'>✅ passed</td>
+<td class='timestamp'>2025-09-07T02:14:12Z</td>
+<td class='notes'></td>
+</tr>
+<tr>
+<td>cleanup</td>
+<td>execute</td>
+<td class='passed'>✅ passed</td>
+<td class='timestamp'>2025-09-07T02:14:35Z</td>
+<td class='notes'></td>
+</tr>
+<tr>
+<td>limit</td>
+<td>view</td>
+<td class='passed'>✅ passed</td>
+<td class='timestamp'>2025-09-07T02:15:13Z</td>
+<td class='notes'></td>
+</tr>
+<tr>
+<td>limit</td>
+<td>set_limit</td>
+<td class='untested'>⏳ untested</td>
+<td class='timestamp'>2025-09-07T02:16:28Z</td>
+<td class='notes'>footer is not properly displaying username of executing user</td>
+</tr>
+<tr>
+<td>limit</td>
+<td>set_unlimited</td>
+<td class='untested'>⏳ untested</td>
+<td class='timestamp'>2025-09-07T02:17:36Z</td>
+<td class='notes'>footer isnt properly displaying username and unlimited should not be 0 instead should be a dash</td>
+</tr>
+<tr>
+<td>rename</td>
+<td>basic</td>
+<td class='untested'>⏳ untested</td>
+<td class='timestamp'>None</td>
+<td class='notes'></td>
+</tr>
+<tr>
+<td>rename</td>
+<td>cooldown</td>
+<td class='untested'>⏳ untested</td>
+<td class='timestamp'>None</td>
+<td class='notes'></td>
+</tr>
+<tr>
+<td>rename</td>
+<td>blacklist</td>
+<td class='untested'>⏳ untested</td>
+<td class='timestamp'>None</td>
+<td class='notes'></td>
+</tr>
+<tr>
+<td>award</td>
+<td>view</td>
+<td class='untested'>⏳ untested</td>
+<td class='timestamp'>None</td>
+<td class='notes'></td>
+</tr>
+<tr>
+<td>award</td>
+<td>set</td>
+<td class='untested'>⏳ untested</td>
+<td class='timestamp'>None</td>
+<td class='notes'></td>
+</tr>
+<tr>
+<td>award</td>
+<td>unset</td>
+<td class='untested'>⏳ untested</td>
+<td class='timestamp'>None</td>
+<td class='notes'></td>
+</tr>
+</table>
+</body></html>

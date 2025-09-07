@@ -1,0 +1,135 @@
+{
+  "description": "Performance baseline configuration for bot testing",
+  "version": "1.0.0",
+  "created": "2025-09-07",
+  "thresholds": {
+    "response_time": {
+      "excellent": 200,
+      "good": 500,
+      "acceptable": 1000,
+      "warning": 2000,
+      "critical": 5000
+    },
+    "cpu_usage": {
+      "excellent": 5,
+      "good": 10,
+      "acceptable": 20,
+      "warning": 40,
+      "critical": 60
+    },
+    "memory_usage_mb": {
+      "excellent": 50,
+      "good": 100,
+      "acceptable": 200,
+      "warning": 400,
+      "critical": 800
+    },
+    "error_rate_percent": {
+      "excellent": 0,
+      "good": 1,
+      "acceptable": 5,
+      "warning": 10,
+      "critical": 20
+    }
+  },
+  "command_baselines": {
+    "cleanup_dry_run": {
+      "avg_execution_time_ms": 250,
+      "max_execution_time_ms": 500,
+      "cpu_delta": 5,
+      "memory_delta_mb": 10
+    },
+    "cleanup_execute": {
+      "avg_execution_time_ms": 450,
+      "max_execution_time_ms": 1000,
+      "cpu_delta": 10,
+      "memory_delta_mb": 20
+    },
+    "limit_view": {
+      "avg_execution_time_ms": 150,
+      "max_execution_time_ms": 300,
+      "cpu_delta": 2,
+      "memory_delta_mb": 5
+    },
+    "limit_set_limit": {
+      "avg_execution_time_ms": 200,
+      "max_execution_time_ms": 400,
+      "cpu_delta": 3,
+      "memory_delta_mb": 8
+    },
+    "limit_set_unlimited": {
+      "avg_execution_time_ms": 200,
+      "max_execution_time_ms": 400,
+      "cpu_delta": 3,
+      "memory_delta_mb": 8
+    },
+    "rename_basic": {
+      "avg_execution_time_ms": 300,
+      "max_execution_time_ms": 600,
+      "cpu_delta": 5,
+      "memory_delta_mb": 12
+    },
+    "rename_cooldown": {
+      "avg_execution_time_ms": 250,
+      "max_execution_time_ms": 500,
+      "cpu_delta": 4,
+      "memory_delta_mb": 10
+    },
+    "rename_blacklist": {
+      "avg_execution_time_ms": 200,
+      "max_execution_time_ms": 400,
+      "cpu_delta": 3,
+      "memory_delta_mb": 8
+    },
+    "award_view": {
+      "avg_execution_time_ms": 150,
+      "max_execution_time_ms": 300,
+      "cpu_delta": 2,
+      "memory_delta_mb": 5
+    },
+    "award_set": {
+      "avg_execution_time_ms": 350,
+      "max_execution_time_ms": 700,
+      "cpu_delta": 6,
+      "memory_delta_mb": 15
+    },
+    "award_unset": {
+      "avg_execution_time_ms": 300,
+      "max_execution_time_ms": 600,
+      "cpu_delta": 5,
+      "memory_delta_mb": 12
+    }
+  },
+  "regression_detection": {
+    "enabled": true,
+    "degradation_threshold_percent": 20,
+    "improvement_threshold_percent": 20,
+    "min_samples_required": 5,
+    "comparison_window": 10
+  },
+  "alerts": {
+    "performance_regression": {
+      "enabled": true,
+      "threshold_percent": 25,
+      "notification_channels": ["console", "log", "dashboard"]
+    },
+    "error_spike": {
+      "enabled": true,
+      "threshold_percent": 10,
+      "time_window_minutes": 5,
+      "notification_channels": ["console", "log", "dashboard"]
+    },
+    "resource_exhaustion": {
+      "enabled": true,
+      "cpu_threshold_percent": 80,
+      "memory_threshold_percent": 85,
+      "notification_channels": ["console", "log", "dashboard"]
+    }
+  },
+  "monitoring": {
+    "sample_interval_seconds": 1,
+    "metric_retention_days": 30,
+    "aggregate_interval_minutes": 5,
+    "dashboard_refresh_seconds": 5
+  }
+}

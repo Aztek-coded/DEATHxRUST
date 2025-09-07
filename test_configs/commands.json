@@ -1,0 +1,217 @@
+{
+  "bot_name": "DEATH Bot",
+  "test_suites": {
+    "boosterrole_extended": {
+      "name": "Boosterrole Extended Management",
+      "description": "Extended management commands for booster roles",
+      "commands": {
+        "cleanup": {
+          "command": "/boosterrole cleanup",
+          "description": "Remove orphaned booster roles",
+          "permission_required": "MANAGE_GUILD",
+          "test_cases": [
+            {
+              "id": "cleanup_dry_run",
+              "name": "Dry Run Mode",
+              "description": "Preview cleanup without deleting",
+              "discord_command": "/boosterrole cleanup dry_run:true",
+              "expected_behavior": "Shows preview of roles to be cleaned",
+              "test_type": "admin"
+            },
+            {
+              "id": "cleanup_execute",
+              "name": "Execute Cleanup",
+              "description": "Actually remove orphaned roles",
+              "discord_command": "/boosterrole cleanup",
+              "expected_behavior": "Removes orphaned roles and shows count",
+              "test_type": "admin"
+            }
+          ]
+        },
+        "limit": {
+          "command": "/boosterrole limit",
+          "description": "Set maximum booster roles allowed",
+          "permission_required": "MANAGE_GUILD",
+          "test_cases": [
+            {
+              "id": "limit_view",
+              "name": "View Current Limit",
+              "description": "Check current role limit setting",
+              "discord_command": "/boosterrole limit",
+              "expected_behavior": "Shows current limit or 'unlimited'",
+              "test_type": "admin"
+            },
+            {
+              "id": "limit_set",
+              "name": "Set Limit",
+              "description": "Set a specific role limit",
+              "discord_command": "/boosterrole limit max_roles:5",
+              "expected_behavior": "Confirms limit set to 5",
+              "test_type": "admin"
+            },
+            {
+              "id": "limit_unlimited",
+              "name": "Set Unlimited",
+              "description": "Remove role limit",
+              "discord_command": "/boosterrole limit max_roles:0",
+              "expected_behavior": "Confirms unlimited roles",
+              "test_type": "admin"
+            }
+          ]
+        },
+        "rename": {
+          "command": "/boosterrole rename",
+          "description": "Rename booster role",
+          "permission_required": "BOOSTER",
+          "test_cases": [
+            {
+              "id": "rename_basic",
+              "name": "Basic Rename",
+              "description": "Rename role to new name",
+              "discord_command": "/boosterrole rename new_name:TestRole",
+              "expected_behavior": "Role renamed successfully",
+              "test_type": "booster"
+            },
+            {
+              "id": "rename_cooldown",
+              "name": "Cooldown Check",
+              "description": "Test rename cooldown",
+              "discord_command": "/boosterrole rename new_name:TestRole2",
+              "expected_behavior": "Shows cooldown message (60 minutes)",
+              "test_type": "booster"
+            },
+            {
+              "id": "rename_blacklist",
+              "name": "Blacklist Check",
+              "description": "Test blacklisted words",
+              "discord_command": "/boosterrole rename new_name:BadWord",
+              "expected_behavior": "Rejects blacklisted name",
+              "test_type": "booster"
+            }
+          ]
+        },
+        "award": {
+          "command": "/boosterrole award",
+          "description": "Manage award roles for boosters",
+          "permission_required": "MANAGE_GUILD | MANAGE_ROLES",
+          "test_cases": [
+            {
+              "id": "award_view",
+              "name": "View Award Role",
+              "description": "Check current award role",
+              "discord_command": "/boosterrole award view",
+              "expected_behavior": "Shows current award role or 'none set'",
+              "test_type": "admin"
+            },
+            {
+              "id": "award_set",
+              "name": "Set Award Role",
+              "description": "Configure award role",
+              "discord_command": "/boosterrole award set role:@RoleName",
+              "expected_behavior": "Confirms award role set",
+              "test_type": "admin"
+            },
+            {
+              "id": "award_unset",
+              "name": "Remove Award Role",
+              "description": "Remove award role configuration",
+              "discord_command": "/boosterrole award unset",
+              "expected_behavior": "Confirms award role removed",
+              "test_type": "admin"
+            }
+          ]
+        }
+      }
+    },
+    "general": {
+      "name": "General Bot Commands",
+      "description": "Basic bot functionality commands",
+      "commands": {
+        "ping": {
+          "command": "/ping",
+          "description": "Check bot latency",
+          "permission_required": null,
+          "test_cases": [
+            {
+              "id": "ping_basic",
+              "name": "Basic Ping",
+              "description": "Test bot response time",
+              "discord_command": "/ping",
+              "expected_behavior": "Shows latency in ms",
+              "test_type": "public"
+            }
+          ]
+        },
+        "help": {
+          "command": "/help",
+          "description": "Show bot help information",
+          "permission_required": null,
+          "test_cases": [
+            {
+              "id": "help_basic",
+              "name": "Basic Help",
+              "description": "Show general help",
+              "discord_command": "/help",
+              "expected_behavior": "Shows command list",
+              "test_type": "public"
+            },
+            {
+              "id": "help_command",
+              "name": "Command Help",
+              "description": "Show help for specific command",
+              "discord_command": "/help command:boosterrole",
+              "expected_behavior": "Shows detailed command help",
+              "test_type": "public"
+            }
+          ]
+        }
+      }
+    }
+  },
+  "test_environments": {
+    "development": {
+      "guild_id": "1410101805626425346",
+      "channel_id": "1410101806637387888",
+      "test_user_id": "758053782243377334",
+      "admin_user_id": "758053782243377334"
+    },
+    "production": {
+      "guild_id": "",
+      "channel_id": "",
+      "test_user_id": "",
+      "admin_user_id": ""
+    }
+  },
+  "status_definitions": {
+    "passed": {
+      "icon": "✅",
+      "color": "#43b581",
+      "description": "Command works as expected"
+    },
+    "failed": {
+      "icon": "❌",
+      "color": "#f04747",
+      "description": "Command does not work"
+    },
+    "partial": {
+      "icon": "⚠️",
+      "color": "#faa61a",
+      "description": "Some features work, others don't"
+    },
+    "untested": {
+      "icon": "⏳",
+      "color": "#747f8d",
+      "description": "Not yet tested"
+    },
+    "skipped": {
+      "icon": "⏭️",
+      "color": "#5865f2",
+      "description": "Test skipped"
+    },
+    "rejected": {
+      "icon": "🚫",
+      "color": "#e91e63",
+      "description": "Command should not be used"
+    }
+  }
+}

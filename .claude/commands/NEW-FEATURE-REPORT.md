@@ -19,7 +19,53 @@
 ## Description:
 
 ```
-There should be a command with a top level function that tests all the responses of a given command. including error commands, success response, warnings, help message, etc. This is to be able to view that the colors align with the development guidelines and to ensure responses are concise and not overlery verbose. May require some type of alignmnet across all response types to be able to dynamically and programatically test and view all the responses of a given command
+### `boosterrole cleanup` ❌
+
+Clean up unused booster roles
+
+- **Arguments:** none
+- **Permissions:** Manage Guild
+- **Status:** Not implemented
+
+### `boosterrole limit` ❌
+
+Set limit for booster roles
+
+- **Arguments:** limit
+- **Permissions:** Manage Guild
+- **Status:** Not implemented
+
+### `boosterrole rename` ❌
+
+Edit your booster roles name
+
+- **Arguments:** new name
+- **Permissions:** Booster Only
+- **Status:** Not implemented
+
+### `boosterrole award` ❌
+
+Reward a member a specific role upon boost
+
+- **Arguments:** role
+- **Permissions:** Manage Guild, Roles
+- **Status:** Not implemented
+
+### `boosterrole award unset` ❌
+
+Remove the reward role
+
+- **Arguments:** none
+- **Permissions:** Manage Guild, Roles
+- **Status:** Not implemented
+
+### `boosterrole award view` ❌
+
+View the current award role
+
+- **Arguments:** none
+- **Permissions:** Manage Guild, Roles
+- **Status:** Not implemented
 ```
 
 
