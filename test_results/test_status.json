@@ -1,0 +1,65 @@
+{
+  "cleanup": {
+    "dry_run": {
+      "status": "passed",
+      "last_tested": "2025-09-07T02:14:12Z",
+      "notes": ""
+    },
+    "execute": {
+      "status": "passed",
+      "last_tested": "2025-09-07T02:14:35Z",
+      "notes": ""
+    }
+  },
+  "limit": {
+    "view": {
+      "status": "passed",
+      "last_tested": "2025-09-07T02:15:13Z",
+      "notes": ""
+    },
+    "set_limit": {
+      "status": "untested",
+      "last_tested": "2025-09-07T02:16:28Z",
+      "notes": "footer is not properly displaying username of executing user"
+    },
+    "set_unlimited": {
+      "status": "untested",
+      "last_tested": "2025-09-07T02:17:36Z",
+      "notes": "footer isnt properly displaying username and unlimited should not be 0 instead should be a dash"
+    }
+  },
+  "rename": {
+    "basic": {
+      "status": "untested",
+      "last_tested": null,
+      "notes": ""
+    },
+    "cooldown": {
+      "status": "untested",
+      "last_tested": null,
+      "notes": ""
+    },
+    "blacklist": {
+      "status": "untested",
+      "last_tested": null,
+      "notes": ""
+    }
+  },
+  "award": {
+    "view": {
+      "status": "untested",
+      "last_tested": null,
+      "notes": ""
+    },
+    "set": {
+      "status": "untested",
+      "last_tested": null,
+      "notes": ""
+    },
+    "unset": {
+      "status": "untested",
+      "last_tested": null,
+      "notes": ""
+    }
+  }
+}

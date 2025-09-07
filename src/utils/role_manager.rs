@@ -96,7 +96,7 @@ impl RoleManager {
             .into());
         }
 
-        let mut role = guild_id
+        let _role = guild_id
             .to_guild_cached(&ctx.cache)
             .and_then(|guild| guild.roles.get(&role_id).cloned())
             .ok_or_else(|| BotError::Other("Role not found".to_string()))?;
@@ -105,7 +105,7 @@ impl RoleManager {
             .name(role_name)
             .colour(Colour::new(color));
 
-        role = guild_id.edit_role(&ctx.http, role_id, edit_builder).await?;
+        let role = guild_id.edit_role(&ctx.http, role_id, edit_builder).await?;
 
         tracing::info!(
             guild_id = %guild_id,

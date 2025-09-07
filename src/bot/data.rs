@@ -7,7 +7,7 @@ use std::sync::Arc;
 use tokio::sync::RwLock;
 
 /// Bot application data that will be accessible in all commands
-#[derive(Debug)]
+#[derive(Debug, Clone)]
 pub struct Data {
     pub settings: Settings,
     pub db_pool: SqlitePool,

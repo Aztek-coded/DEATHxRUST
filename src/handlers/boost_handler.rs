@@ -1,5 +1,5 @@
-use crate::data::models::{BoosterRole, BoosterRoleLink};
-use serenity::all::{Context, GuildId, GuildMemberUpdateEvent, Ready, Role};
+use crate::data::models::{BoosterRole, BoosterRoleLink, GuildBoosterAward};
+use serenity::all::{Context, GuildId, GuildMemberUpdateEvent, Member, Ready, Role};
 use sqlx::SqlitePool;
 use std::sync::Arc;
 
@@ -40,6 +40,9 @@ impl BoostHandler {
             guild_id = %guild_id,
             "Member lost boost status, cleaning up booster role"
         );
+
+        // Remove award role if configured
+        self.remove_award_role(ctx, guild_id, &current_member).await;
 
         // Get the booster role from database
         let booster_role = match BoosterRole::get(&self.db_pool, guild_id, user_id).await {
@@ -309,6 +312,121 @@ impl BoostHandler {
                     role_id = %removed_role_id,
                     error = ?e,
                     "Failed to clean up role link after role deletion"
+                );
+            }
+        }
+    }
+
+    /// Check and assign award role for new boosters
+    pub async fn check_award_assignment(
+        &self,
+        ctx: &Context,
+        old_member: Option<&Member>,
+        new_member: &Member,
+    ) {
+        let guild_id = new_member.guild_id;
+        let user_id = new_member.user.id;
+
+        // Check if member just started boosting
+        let is_new_booster = match (
+            old_member.and_then(|m| m.premium_since),
+            new_member.premium_since,
+        ) {
+            (None, Some(_)) => true,
+            _ => false,
+        };
+
+        if !is_new_booster {
+            return;
+        }
+
+        // Check if there's an award role configured
+        let award_role_id = match GuildBoosterAward::get(&self.db_pool, guild_id).await {
+            Ok(Some(role_id)) => role_id,
+            Ok(None) => return,
+            Err(e) => {
+                tracing::error!(
+                    guild_id = %guild_id,
+                    error = ?e,
+                    "Failed to fetch award role configuration"
+                );
+                return;
+            }
+        };
+
+        // Check if the role still exists
+        let guild = match guild_id.to_partial_guild(&ctx.http).await {
+            Ok(g) => g,
+            Err(e) => {
+                tracing::error!(
+                    guild_id = %guild_id,
+                    error = ?e,
+                    "Failed to fetch guild for award role assignment"
+                );
+                return;
+            }
+        };
+
+        if !guild.roles.contains_key(&award_role_id) {
+            tracing::warn!(
+                guild_id = %guild_id,
+                award_role_id = %award_role_id,
+                "Award role no longer exists"
+            );
+            return;
+        }
+
+        // Assign the award role
+        if let Err(e) = new_member.add_role(&ctx.http, award_role_id).await {
+            tracing::error!(
+                user_id = %user_id,
+                guild_id = %guild_id,
+                award_role_id = %award_role_id,
+                error = ?e,
+                "Failed to assign award role to new booster"
+            );
+        } else {
+            tracing::info!(
+                user_id = %user_id,
+                guild_id = %guild_id,
+                award_role_id = %award_role_id,
+                "Successfully assigned award role to new booster"
+            );
+        }
+    }
+
+    /// Remove award role when member stops boosting
+    pub async fn remove_award_role(&self, ctx: &Context, guild_id: GuildId, member: &Member) {
+        // Check if there's an award role configured
+        let award_role_id = match GuildBoosterAward::get(&self.db_pool, guild_id).await {
+            Ok(Some(role_id)) => role_id,
+            Ok(None) => return,
+            Err(e) => {
+                tracing::error!(
+                    guild_id = %guild_id,
+                    error = ?e,
+                    "Failed to fetch award role configuration for removal"
+                );
+                return;
+            }
+        };
+
+        // Remove the award role if member has it
+        if member.roles.contains(&award_role_id) {
+            if let Err(e) = member.remove_role(&ctx.http, award_role_id).await {
+                tracing::error!(
+                    user_id = %member.user.id,
+                    guild_id = %guild_id,
+                    award_role_id = %award_role_id,
+                    error = ?e,
+                    "Failed to remove award role from ex-booster"
+                );
+            } else {
+                tracing::info!(
+                    user_id = %member.user.id,
+                    guild_id = %guild_id,
+                    award_role_id = %award_role_id,
+                    "Successfully removed award role from ex-booster"
                 );
             }
         }

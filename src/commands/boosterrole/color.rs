@@ -1,5 +1,5 @@
 use crate::bot::{Context, Error};
-use crate::data::models::{BoosterRole, RoleNameBlacklist};
+use crate::data::models::{BoosterRole, GuildBoosterLimit, RoleNameBlacklist};
 use crate::utils::{ColorParser, EmbedBuilder, RoleManager};
 use poise::serenity_prelude as serenity;
 use serenity::prelude::Mentionable;
@@ -175,6 +175,27 @@ pub async fn color(
             }
         }
     } else {
+        // Check limit before creating new role
+        let (can_create, limit) = GuildBoosterLimit::check_limit(&ctx.data().db_pool, guild_id)
+            .await
+            .map_err(|e| Error::Database(e))?;
+
+        if !can_create {
+            let limit_text = match limit {
+                Some(0) => "Role creation is currently disabled".to_string(),
+                Some(l) => format!("This server has reached the maximum limit of {} booster roles", l),
+                None => "Role creation limit exceeded".to_string(),
+            };
+
+            let embed = EmbedBuilder::error(
+                "❌ Role Limit Reached",
+                &format!("{}\n\nPlease contact an administrator.", limit_text),
+            );
+
+            ctx.send(poise::CreateReply::default().embed(embed)).await?;
+            return Ok(());
+        }
+
         // Create new role
         tracing::info!(
             user_id = %user_id,

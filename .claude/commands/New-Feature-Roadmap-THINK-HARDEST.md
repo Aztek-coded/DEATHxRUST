@@ -45,56 +45,70 @@
 ## Feature Details:
 
 ### Name:
-**Booster Role Command Suite**
+**Boosterrole Extended Management Commands**
 
 ### Intended Function/Feature:
-A comprehensive command system for Discord server boosters and administrators to manage custom booster roles. The feature enables:
+A comprehensive suite of additional boosterrole management commands that extend the existing boosterrole functionality with administrative controls and enhanced user customization options:
 
-1. **Custom Color Roles** - Allow boosters to create personalized color roles with custom names
-2. **Role Linking** - Administrators can link existing roles to function as booster roles
-3. **Content Filtering** - Administrators can blacklist inappropriate words for role names
-4. **Management Tools** - View and manage all booster roles in the server
+1. **Cleanup System** - Automated removal of unused/orphaned booster roles
+2. **Role Limits** - Server-wide limits on booster role creation
+3. **Role Renaming** - Allow boosters to rename their existing roles
+4. **Award System** - Automatic role rewards upon member boosting with management controls
 
 **Command Structure:**
-- `/boosterrole color [color] [second_color] [name]` - Create custom color role (Booster only)
-- `/boosterrole link [member] [role]` - Link role to booster (Manage Guild permission)
-- `/boosterrole filter [word]` - Add word to blacklist (Manage Guild permission)
-- `/boosterrole filter list` - View blacklisted words (Manage Guild permission)
-- `/boosterrole list` - View all booster roles (Manage Guild permission)
+- `/boosterrole cleanup` - Clean up unused booster roles (Manage Guild permission)
+- `/boosterrole limit [limit]` - Set limit for booster roles (Manage Guild permission)
+- `/boosterrole rename [new_name]` - Edit your booster role's name (Booster only)
+- `/boosterrole award [role]` - Reward a member a specific role upon boost (Manage Guild, Manage Roles permissions)
+- `/boosterrole award unset` - Remove the reward role (Manage Guild, Manage Roles permissions)
+- `/boosterrole award view` - View the current award role (Manage Guild, Manage Roles permissions)
 
 ### Symptoms/Behaviors (if update):
-*New feature implementation - N/A*
+Currently missing essential management features for booster roles:
+- No automated cleanup for roles when boosters leave or expire
+- No limits on role creation leading to potential abuse
+- No way for boosters to rename their existing roles
+- No automatic reward system for new boosters
+- Manual role management required by administrators
+- Orphaned roles accumulate over time cluttering the role list
 
 ### Expected Outcomes:
-- **For Boosters:**
-  - Create custom color roles with personalized names
-  - Choose primary and secondary colors for their role
-  - Enhanced server personalization experience
-  - Automatic role management tied to boost status
+1. **Automated Maintenance**: 
+   - `/boosterrole cleanup` removes orphaned roles automatically
+   - Provides cleanup statistics (roles removed, members affected)
+   - Dry-run option to preview changes before execution
 
-- **For Administrators:**
-  - Link existing roles to boosters without creating new ones
-  - Filter inappropriate role names through word blacklist
-  - View comprehensive list of all booster roles for management
-  - Maintain server standards through content filtering
-  - Delegate role management while maintaining control
+2. **Resource Control**: 
+   - `/boosterrole limit` prevents role spam with configurable limits
+   - Per-guild limit storage and enforcement
+   - Clear error messages when limits are reached
 
-- **Technical Implementation:**
-  - 5 slash commands with subcommand group structure
-  - Permission-based access control (Booster-only and Manage Guild permissions)
-  - Persistent data storage for booster roles, filters, and links
-  - Color validation and parsing with hex/RGB support
-  - Role hierarchy validation and management
-  - Automatic cleanup when boost expires
-  - Rate limiting for role creation
-  - Embed-based responses for better UX
+3. **User Flexibility**: 
+   - `/boosterrole rename` empowers boosters to update their role names
+   - Name validation against existing filters
+   - Preserves role color and position while updating name
 
-- **Discord API Interactions:**
-  - Role creation with color values
-  - Member role assignment/removal
-  - Permission checking for command execution
-  - Guild boost status verification
-  - Role position management in hierarchy
+4. **Reward Automation**: 
+   - `/boosterrole award` system automatically assigns predefined roles to new boosters
+   - Event-driven role assignment on boost detection
+   - Unset and view subcommands for full management control
+
+5. **Administrative Visibility**: 
+   - Clear management views for award roles and cleanup statistics
+   - Audit logging for all administrative actions
+   - Embedded responses with role counts and member listings
+
+6. **Permission Enforcement**: 
+   - Proper separation between booster-only and admin-only commands
+   - Granular permission checks for role management operations
+   - Error handling for insufficient permissions
+
+7. **Technical Implementation**:
+   - Database schema for limits and award role configuration
+   - Event handlers for boost status changes
+   - Batch processing for cleanup operations
+   - Transaction support for atomic role operations
+   - Rate limiting on rename operations
 
 ## Reference screenshots:
 *No screenshots provided for this feature*

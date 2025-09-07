@@ -1,0 +1,1157 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Enhanced Persistence Filter Test Report</title>
+    
+    <style>
+        :root {
+            --bg-primary: #0e0e10;
+            --bg-secondary: #18181b;
+            --bg-tertiary: #1f1f23;
+            --border-color: #3a3a3d;
+            --text-primary: #efeff1;
+            --text-secondary: #adadb8;
+            --accent: #9146ff;
+            --accent-hover: #772ce8;
+            --success: #00f593;
+            --danger: #fb4648;
+            --warning: #ffb626;
+            --info: #4da5ff;
+        }
+        
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, sans-serif;
+            background: var(--bg-primary);
+            color: var(--text-primary);
+            line-height: 1.6;
+        }
+        
+        .container {
+            max-width: 1400px;
+            margin: 0 auto;
+            padding: 20px;
+        }
+        
+        h1, h2, h3 {
+            color: var(--accent);
+            margin-bottom: 1rem;
+        }
+        
+        .header {
+            text-align: center;
+            padding: 2rem 0;
+            border-bottom: 2px solid var(--accent);
+            margin-bottom: 2rem;
+        }
+        
+        .summary-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 1rem;
+            margin: 2rem 0;
+        }
+        
+        .stat-card {
+            background: var(--bg-secondary);
+            border: 1px solid var(--border-color);
+            border-radius: 8px;
+            padding: 1.5rem;
+            text-align: center;
+            transition: transform 0.2s, box-shadow 0.2s;
+        }
+        
+        .stat-card:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(145, 70, 255, 0.2);
+        }
+        
+        .stat-value {
+            font-size: 2.5rem;
+            font-weight: bold;
+            margin: 0.5rem 0;
+        }
+        
+        .stat-label {
+            color: var(--text-secondary);
+            font-size: 0.9rem;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+        }
+        
+        .chart-container {
+            background: var(--bg-secondary);
+            border: 1px solid var(--border-color);
+            border-radius: 8px;
+            padding: 1.5rem;
+            margin: 2rem 0;
+        }
+        
+        .filters {
+            background: var(--bg-secondary);
+            border: 1px solid var(--border-color);
+            border-radius: 8px;
+            padding: 1rem;
+            margin: 2rem 0;
+            display: flex;
+            gap: 1rem;
+            flex-wrap: wrap;
+            align-items: center;
+        }
+        
+        .filter-group {
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+        
+        .filter-group label {
+            color: var(--text-secondary);
+            font-size: 0.9rem;
+        }
+        
+        input, select {
+            background: var(--bg-tertiary);
+            color: var(--text-primary);
+            border: 1px solid var(--border-color);
+            border-radius: 4px;
+            padding: 0.5rem;
+            font-size: 0.9rem;
+        }
+        
+        input:focus, select:focus {
+            outline: none;
+            border-color: var(--accent);
+        }
+        
+        .btn {
+            background: var(--accent);
+            color: white;
+            border: none;
+            border-radius: 4px;
+            padding: 0.5rem 1rem;
+            cursor: pointer;
+            font-size: 0.9rem;
+            transition: background 0.2s;
+        }
+        
+        .btn:hover {
+            background: var(--accent-hover);
+        }
+        
+        /* Collapsible sections styles */
+        .collapsible-container {
+            background: var(--bg-secondary);
+            border-radius: 8px;
+            margin: 2rem 0;
+            overflow: hidden;
+        }
+        
+        .collapsible-header {
+            background: var(--bg-tertiary);
+            padding: 1rem;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            user-select: none;
+            transition: background 0.2s;
+        }
+        
+        .collapsible-header:hover {
+            background: var(--accent);
+            background: rgba(145, 70, 255, 0.2);
+        }
+        
+        .collapsible-header.command-level {
+            font-size: 1.1rem;
+            font-weight: 600;
+            border-bottom: 2px solid var(--border-color);
+        }
+        
+        .collapsible-header.group-level {
+            padding-left: 2rem;
+            font-size: 1rem;
+            background: rgba(145, 70, 255, 0.1);
+        }
+        
+        .collapse-icon {
+            font-size: 0.8rem;
+            transition: transform 0.3s;
+            margin-right: 0.5rem;
+        }
+        
+        .collapsed .collapse-icon {
+            transform: rotate(-90deg);
+        }
+        
+        .collapsible-content {
+            max-height: 2000px;
+            overflow: hidden;
+            transition: max-height 0.3s ease;
+        }
+        
+        .collapsed .collapsible-content {
+            max-height: 0;
+        }
+        
+        .command-stats {
+            display: flex;
+            gap: 1rem;
+            margin-left: auto;
+            align-items: center;
+        }
+        
+        .mini-stat {
+            display: flex;
+            align-items: center;
+            gap: 0.25rem;
+            font-size: 0.9rem;
+            color: var(--text-secondary);
+        }
+        
+        table {
+            width: 100%;
+            background: var(--bg-secondary);
+            border-collapse: collapse;
+        }
+        
+        thead {
+            background: var(--bg-tertiary);
+        }
+        
+        th {
+            padding: 1rem;
+            text-align: left;
+            color: var(--accent);
+            font-weight: 600;
+            border-bottom: 2px solid var(--border-color);
+        }
+        
+        td {
+            padding: 0.75rem 1rem;
+            border-bottom: 1px solid var(--border-color);
+        }
+        
+        tr:hover {
+            background: var(--bg-tertiary);
+        }
+        
+        .status-badge {
+            display: inline-block;
+            padding: 0.25rem 0.75rem;
+            border-radius: 12px;
+            font-size: 0.85rem;
+            font-weight: 600;
+        }
+        
+        .status-passed { background: var(--success); color: black; }
+        .status-failed { background: var(--danger); color: white; }
+        .status-partial { background: var(--warning); color: black; }
+        .status-untested { background: var(--text-secondary); color: black; }
+        .status-skipped { background: var(--info); color: white; }
+        .status-rejected { background: #e91e63; color: white; }
+        
+        .command-name {
+            font-family: 'Courier New', monospace;
+            color: var(--info);
+        }
+        
+        .notes {
+            color: var(--text-secondary);
+            font-size: 0.85rem;
+            font-style: italic;
+        }
+        
+        .timestamp {
+            color: var(--text-secondary);
+            font-size: 0.85rem;
+        }
+        
+        .timeline {
+            background: var(--bg-secondary);
+            border: 1px solid var(--border-color);
+            border-radius: 8px;
+            padding: 1.5rem;
+            margin: 2rem 0;
+        }
+        
+        .timeline-item {
+            display: flex;
+            align-items: center;
+            padding: 0.5rem 0;
+            border-left: 2px solid var(--border-color);
+            margin-left: 1rem;
+            padding-left: 1rem;
+            position: relative;
+        }
+        
+        .timeline-item::before {
+            content: '';
+            position: absolute;
+            left: -6px;
+            width: 10px;
+            height: 10px;
+            border-radius: 50%;
+            background: var(--accent);
+        }
+        
+        .progress-bar {
+            width: 100%;
+            height: 30px;
+            background: var(--bg-tertiary);
+            border-radius: 15px;
+            overflow: hidden;
+            margin: 1rem 0;
+        }
+        
+        .progress-fill {
+            height: 100%;
+            background: linear-gradient(90deg, var(--accent), var(--accent-hover));
+            transition: width 0.5s ease;
+        }
+        
+        .footer {
+            text-align: center;
+            padding: 2rem 0;
+            margin-top: 3rem;
+            border-top: 1px solid var(--border-color);
+            color: var(--text-secondary);
+        }
+        
+        .expand-controls {
+            margin: 1rem 0;
+            display: flex;
+            gap: 1rem;
+        }
+        
+        .expand-btn {
+            background: var(--bg-tertiary);
+            border: 1px solid var(--border-color);
+            color: var(--text-secondary);
+            padding: 0.5rem 1rem;
+            border-radius: 4px;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+        
+        .expand-btn:hover {
+            background: var(--accent);
+            color: white;
+            border-color: var(--accent);
+        }
+        
+        @media (max-width: 768px) {
+            .summary-grid {
+                grid-template-columns: 1fr;
+            }
+            
+            .filters {
+                flex-direction: column;
+                align-items: stretch;
+            }
+            
+            table {
+                font-size: 0.85rem;
+            }
+            
+            th, td {
+                padding: 0.5rem;
+            }
+            
+            .collapsible-header.group-level {
+                padding-left: 1rem;
+            }
+        }
+    </style>
+    
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <script>
+        // Collapsible functionality
+        function toggleCollapse(element) {
+            const parent = element.closest('.collapsible-section');
+            parent.classList.toggle('collapsed');
+        }
+        
+        function expandAll() {
+            document.querySelectorAll('.collapsible-section').forEach(section => {
+                section.classList.remove('collapsed');
+            });
+        }
+        
+        function collapseAll() {
+            document.querySelectorAll('.collapsible-section').forEach(section => {
+                section.classList.add('collapsed');
+            });
+        }
+        
+        // Filter functionality for collapsible structure
+        function filterResults() {
+            const searchInput = document.getElementById('searchInput').value.toLowerCase();
+            const statusFilter = document.getElementById('statusFilter').value;
+            
+            // Filter individual rows in tables
+            document.querySelectorAll('.results-table tbody tr').forEach(row => {
+                const command = row.cells[0].textContent.toLowerCase();
+                const status = row.querySelector('.status-badge')?.textContent.toLowerCase() || '';
+                
+                const matchesSearch = command.includes(searchInput);
+                const matchesStatus = statusFilter === 'all' || status.includes(statusFilter);
+                
+                row.style.display = matchesSearch && matchesStatus ? '' : 'none';
+            });
+            
+            // Hide empty sections
+            document.querySelectorAll('.collapsible-section').forEach(section => {
+                const visibleRows = section.querySelectorAll('tbody tr:not([style*="display: none"])');
+                section.style.display = visibleRows.length > 0 ? '' : 'none';
+            });
+            
+            updateVisibleCount();
+        }
+        
+        function updateVisibleCount() {
+            const visibleRows = document.querySelectorAll('.results-table tbody tr:not([style*="display: none"])');
+            const countElement = document.getElementById('visibleCount');
+            if (countElement) {
+                countElement.textContent = visibleRows.length;
+            }
+        }
+        
+        // Sort table within a section
+        function sortTable(tableElement, column) {
+            const tbody = tableElement.querySelector('tbody');
+            const rows = Array.from(tbody.querySelectorAll('tr'));
+            
+            const sortedRows = rows.sort((a, b) => {
+                const aValue = a.cells[column].textContent;
+                const bValue = b.cells[column].textContent;
+                return aValue.localeCompare(bValue);
+            });
+            
+            tbody.innerHTML = '';
+            sortedRows.forEach(row => tbody.appendChild(row));
+        }
+        
+        // Export functionality
+        function exportToCSV() {
+            const rows = document.querySelectorAll('.results-table tr:not([style*="display: none"])');
+            let csv = [];
+            
+            // Add headers
+            csv.push(['Command', 'Subcommand', 'Description', 'Status', 'Last Tested', 'Notes'].join(','));
+            
+            rows.forEach(row => {
+                if (row.querySelector('th')) return; // Skip header rows
+                const cells = row.querySelectorAll('td');
+                if (cells.length > 0) {
+                    const rowData = Array.from(cells).map(cell => 
+                        '"' + cell.textContent.trim().replace(/"/g, '""') + '"'
+                    );
+                    csv.push(rowData.join(','));
+                }
+            });
+            
+            const blob = new Blob([csv.join('\n')], { type: 'text/csv' });
+            const url = URL.createObjectURL(blob);
+            const a = document.createElement('a');
+            a.href = url;
+            a.download = 'test_results_' + new Date().toISOString().slice(0, 10) + '.csv';
+            a.click();
+        }
+        
+        // Initialize on load
+        document.addEventListener('DOMContentLoaded', function() {
+            // Initialize charts
+            initCharts();
+            
+            // Add event listeners
+            document.getElementById('searchInput')?.addEventListener('input', filterResults);
+            document.getElementById('statusFilter')?.addEventListener('change', filterResults);
+            document.getElementById('exportBtn')?.addEventListener('click', exportToCSV);
+            document.getElementById('expandAllBtn')?.addEventListener('click', expandAll);
+            document.getElementById('collapseAllBtn')?.addEventListener('click', collapseAll);
+            
+            // Add click handlers to all collapsible headers
+            document.querySelectorAll('.collapsible-header').forEach(header => {
+                header.addEventListener('click', function() {
+                    toggleCollapse(this);
+                });
+            });
+            
+            // Initial count
+            updateVisibleCount();
+        });
+        
+        function initCharts() {
+            // Status distribution pie chart
+            const statusCtx = document.getElementById('statusChart')?.getContext('2d');
+            if (statusCtx && window.statusData) {
+                new Chart(statusCtx, {
+                    type: 'doughnut',
+                    data: {
+                        labels: Object.keys(window.statusData),
+                        datasets: [{
+                            data: Object.values(window.statusData),
+                            backgroundColor: [
+                                '#00f593',
+                                '#fb4648',
+                                '#ffb626',
+                                '#adadb8',
+                                '#4da5ff',
+                                '#e91e63'
+                            ]
+                        }]
+                    },
+                    options: {
+                        responsive: true,
+                        maintainAspectRatio: false,
+                        plugins: {
+                            legend: {
+                                position: 'right',
+                                labels: { color: '#efeff1' }
+                            }
+                        }
+                    }
+                });
+            }
+            
+            // Timeline chart
+            const timelineCtx = document.getElementById('timelineChart')?.getContext('2d');
+            if (timelineCtx && window.timelineData) {
+                new Chart(timelineCtx, {
+                    type: 'line',
+                    data: window.timelineData,
+                    options: {
+                        responsive: true,
+                        maintainAspectRatio: false,
+                        scales: {
+                            x: {
+                                ticks: { color: '#efeff1' },
+                                grid: { color: '#3a3a3d' }
+                            },
+                            y: {
+                                ticks: { color: '#efeff1' },
+                                grid: { color: '#3a3a3d' }
+                            }
+                        },
+                        plugins: {
+                            legend: {
+                                labels: { color: '#efeff1' }
+                            }
+                        }
+                    }
+                });
+            }
+        }
+    </script>
+</head>
+<body>
+    <div class="container">
+        
+        <div class="header">
+            <h1>🚀 Enhanced Persistence Filter Test Report</h1>
+            <p class="timestamp">Generated: 2025-09-06 21:56:01</p>
+        </div>
+        
+        <div class="summary-grid">
+            <div class="stat-card">
+                <div class="stat-label">Total Commands</div>
+                <div class="stat-value">21</div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-label">Test Coverage</div>
+                <div class="stat-value">31%</div>
+                <div class="progress-bar">
+                    <div class="progress-fill" style="width: 31%"></div>
+                </div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-label">Total Tests</div>
+                <div class="stat-value">22</div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-label">Tests (24h)</div>
+                <div class="stat-value">22</div>
+            </div>
+        </div>
+        
+        <div class="chart-container">
+            <h2>📊 Status Distribution</h2>
+            <div style="height: 300px;">
+                <canvas id="statusChart"></canvas>
+            </div>
+        </div>
+        <script>
+            window.statusData = {"passed": 7, "untested": 15};
+        </script>
+        
+        <div class="filters">
+            <div class="filter-group">
+                <label for="searchInput">Search:</label>
+                <input type="text" id="searchInput" placeholder="Filter commands...">
+            </div>
+            <div class="filter-group">
+                <label for="statusFilter">Status:</label>
+                <select id="statusFilter">
+                    <option value="all">All</option>
+                    <option value="passed">Passed</option>
+                    <option value="failed">Failed</option>
+                    <option value="partial">Partial</option>
+                    <option value="untested">Untested</option>
+                    <option value="skipped">Skipped</option>
+                    <option value="rejected">Rejected</option>
+                </select>
+            </div>
+            <div class="filter-group">
+                <span>Showing: <strong id="visibleCount">0</strong> results</span>
+            </div>
+            <button class="btn" id="exportBtn">📥 Export CSV</button>
+        </div>
+        <div class="expand-controls">
+            <button class="expand-btn" id="expandAllBtn">➕ Expand All</button>
+            <button class="expand-btn" id="collapseAllBtn">➖ Collapse All</button>
+        </div>
+        <h2>📋 Test Results</h2>
+
+            <div class="collapsible-section collapsible-container">
+                <div class="collapsible-header command-level">
+                    <div style="display: flex; align-items: center;">
+                        <span class="collapse-icon">▼</span>
+                        <span class="command-name">/boosterrole</span>
+                    </div>
+                    <div class="command-stats">
+                        <span class="mini-stat">Total: 16</span>
+                        <span class="mini-stat" style="color: var(--success);">✅ 3</span>
+                        <span class="mini-stat" style="color: var(--danger);">❌ 0</span>
+                    </div>
+                </div>
+                <div class="collapsible-content">
+            
+
+                <table class="results-table">
+                    <thead>
+                        <tr>
+                            <th>Subcommand</th>
+                            <th>Description</th>
+                            <th>Status</th>
+                            <th>Last Tested</th>
+                            <th>Notes</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+            
+
+        <tr>
+            <td class="command-name" style="">(base command)</td>
+            <td>Comprehensive booster role management with custom colors, fi</td>
+            <td><span class="status-badge status-untested">untested</span></td>
+            <td class="timestamp">Never</td>
+            <td class="notes"></td>
+        </tr>
+
+        <tr>
+            <td class="command-name" style="padding-left: 1.5rem;">cleanup</td>
+            <td>Preview changes without deleting (dry run)</td>
+            <td><span class="status-badge status-untested">untested</span></td>
+            <td class="timestamp">2025-09-07 03:47</td>
+            <td class="notes"></td>
+        </tr>
+
+        <tr>
+            <td class="command-name" style="padding-left: 1.5rem;">color</td>
+            <td>Create or update your custom booster role with personalized </td>
+            <td><span class="status-badge status-untested">untested</span></td>
+            <td class="timestamp">2025-09-07 03:47</td>
+            <td class="notes"></td>
+        </tr>
+
+        <tr>
+            <td class="command-name" style="padding-left: 1.5rem;">dominant</td>
+            <td>Set your booster role color to your avatar's dominant color</td>
+            <td><span class="status-badge status-untested">untested</span></td>
+            <td class="timestamp">2025-09-07 03:47</td>
+            <td class="notes"></td>
+        </tr>
+
+        <tr>
+            <td class="command-name" style="padding-left: 1.5rem;">limit</td>
+            <td>Maximum number of booster roles (0 = unlimited)</td>
+            <td><span class="status-badge status-untested">untested</span></td>
+            <td class="timestamp">2025-09-07 03:47</td>
+            <td class="notes"></td>
+        </tr>
+
+        <tr>
+            <td class="command-name" style="padding-left: 1.5rem;">link</td>
+            <td>Link an existing role to a booster member for management pur</td>
+            <td><span class="status-badge status-untested">untested</span></td>
+            <td class="timestamp">2025-09-07 03:47</td>
+            <td class="notes"></td>
+        </tr>
+
+        <tr>
+            <td class="command-name" style="padding-left: 1.5rem;">list</td>
+            <td>View all custom booster roles created in this server</td>
+            <td><span class="status-badge status-untested">untested</span></td>
+            <td class="timestamp">2025-09-07 03:47</td>
+            <td class="notes"></td>
+        </tr>
+
+        <tr>
+            <td class="command-name" style="padding-left: 1.5rem;">rename</td>
+            <td>New name for your booster role</td>
+            <td><span class="status-badge status-untested">untested</span></td>
+            <td class="timestamp">2025-09-07 03:47</td>
+            <td class="notes"></td>
+        </tr>
+
+                    </tbody>
+                    </table>
+                    
+                    <div class="collapsible-section" style="margin-left: 2rem; margin-top: 0.5rem;">
+                        <div class="collapsible-header group-level" onclick="toggleCollapse(this)">
+                            <div style="display: flex; align-items: center;">
+                                <span class="collapse-icon">▼</span>
+                                <span class="command-name" style="color: var(--accent);">/boosterrole award</span>
+                            </div>
+                            <div class="command-stats">
+                                <span class="mini-stat">Total: 4</span>
+                                <span class="mini-stat" style="color: var(--success);">✅ 3</span>
+                                <span class="mini-stat" style="color: var(--danger);">❌ 0</span>
+                            </div>
+                        </div>
+                        <div class="collapsible-content">
+                            <table class="results-table">
+                                <tbody>
+                    
+
+        <tr>
+            <td class="command-name" style="padding-left: 1.5rem;">award (group parent)</td>
+            <td>No description available</td>
+            <td><span class="status-badge status-untested">untested</span></td>
+            <td class="timestamp">2025-09-07 03:49</td>
+            <td class="notes">there is no boosterrole award standalone command</td>
+        </tr>
+
+        <tr>
+            <td class="command-name" style="padding-left: 3rem;">set</td>
+            <td>Role to award to new boosters</td>
+            <td><span class="status-badge status-passed">passed</span></td>
+            <td class="timestamp">2025-09-07 03:52</td>
+            <td class="notes"></td>
+        </tr>
+
+        <tr>
+            <td class="command-name" style="padding-left: 3rem;">unset</td>
+            <td>No description available</td>
+            <td><span class="status-badge status-passed">passed</span></td>
+            <td class="timestamp">2025-09-07 03:53</td>
+            <td class="notes"></td>
+        </tr>
+
+        <tr>
+            <td class="command-name" style="padding-left: 3rem;">view</td>
+            <td>No description available</td>
+            <td><span class="status-badge status-passed">passed</span></td>
+            <td class="timestamp">2025-09-07 03:53</td>
+            <td class="notes"></td>
+        </tr>
+
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                    
+                    <table class="results-table">
+                        <tbody>
+                    
+
+                    </tbody>
+                    </table>
+                    
+                    <div class="collapsible-section" style="margin-left: 2rem; margin-top: 0.5rem;">
+                        <div class="collapsible-header group-level" onclick="toggleCollapse(this)">
+                            <div style="display: flex; align-items: center;">
+                                <span class="collapse-icon">▼</span>
+                                <span class="command-name" style="color: var(--accent);">/boosterrole filter</span>
+                            </div>
+                            <div class="command-stats">
+                                <span class="mini-stat">Total: 4</span>
+                                <span class="mini-stat" style="color: var(--success);">✅ 0</span>
+                                <span class="mini-stat" style="color: var(--danger);">❌ 0</span>
+                            </div>
+                        </div>
+                        <div class="collapsible-content">
+                            <table class="results-table">
+                                <tbody>
+                    
+
+        <tr>
+            <td class="command-name" style="padding-left: 1.5rem;">filter (group parent)</td>
+            <td>Manage blacklisted words that cannot be used in booster role</td>
+            <td><span class="status-badge status-untested">untested</span></td>
+            <td class="timestamp">2025-09-07 03:47</td>
+            <td class="notes"></td>
+        </tr>
+
+        <tr>
+            <td class="command-name" style="padding-left: 3rem;">add</td>
+            <td>Add a word to the blacklist that cannot be used in booster r</td>
+            <td><span class="status-badge status-untested">untested</span></td>
+            <td class="timestamp">Never</td>
+            <td class="notes"></td>
+        </tr>
+
+        <tr>
+            <td class="command-name" style="padding-left: 3rem;">list</td>
+            <td>View all words that are blacklisted from booster role names</td>
+            <td><span class="status-badge status-untested">untested</span></td>
+            <td class="timestamp">Never</td>
+            <td class="notes"></td>
+        </tr>
+
+        <tr>
+            <td class="command-name" style="padding-left: 3rem;">remove</td>
+            <td>Remove a word from the blacklist so it can be used in booste</td>
+            <td><span class="status-badge status-untested">untested</span></td>
+            <td class="timestamp">Never</td>
+            <td class="notes"></td>
+        </tr>
+
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                    
+                    <table class="results-table">
+                        <tbody>
+                    
+
+                    </tbody>
+                </table>
+                </div>
+            </div>
+            
+
+            <div class="collapsible-section collapsible-container">
+                <div class="collapsible-header command-level">
+                    <div style="display: flex; align-items: center;">
+                        <span class="collapse-icon">▼</span>
+                        <span class="command-name">/cache_status</span>
+                    </div>
+                    <div class="command-stats">
+                        <span class="mini-stat">Total: 1</span>
+                        <span class="mini-stat" style="color: var(--success);">✅ 0</span>
+                        <span class="mini-stat" style="color: var(--danger);">❌ 0</span>
+                    </div>
+                </div>
+                <div class="collapsible-content">
+            
+
+                <table class="results-table">
+                    <thead>
+                        <tr>
+                            <th>Subcommand</th>
+                            <th>Description</th>
+                            <th>Status</th>
+                            <th>Last Tested</th>
+                            <th>Notes</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+            
+
+        <tr>
+            <td class="command-name" style="">(base command)</td>
+            <td>No description available</td>
+            <td><span class="status-badge status-untested">untested</span></td>
+            <td class="timestamp">2025-09-07 03:47</td>
+            <td class="notes"></td>
+        </tr>
+
+                    </tbody>
+                </table>
+                </div>
+            </div>
+            
+
+            <div class="collapsible-section collapsible-container">
+                <div class="collapsible-header command-level">
+                    <div style="display: flex; align-items: center;">
+                        <span class="collapse-icon">▼</span>
+                        <span class="command-name">/help</span>
+                    </div>
+                    <div class="command-stats">
+                        <span class="mini-stat">Total: 1</span>
+                        <span class="mini-stat" style="color: var(--success);">✅ 0</span>
+                        <span class="mini-stat" style="color: var(--danger);">❌ 0</span>
+                    </div>
+                </div>
+                <div class="collapsible-content">
+            
+
+                <table class="results-table">
+                    <thead>
+                        <tr>
+                            <th>Subcommand</th>
+                            <th>Description</th>
+                            <th>Status</th>
+                            <th>Last Tested</th>
+                            <th>Notes</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+            
+
+        <tr>
+            <td class="command-name" style="">(base command)</td>
+            <td>No description available</td>
+            <td><span class="status-badge status-untested">untested</span></td>
+            <td class="timestamp">2025-09-07 03:47</td>
+            <td class="notes"></td>
+        </tr>
+
+                    </tbody>
+                </table>
+                </div>
+            </div>
+            
+
+            <div class="collapsible-section collapsible-container">
+                <div class="collapsible-header command-level">
+                    <div style="display: flex; align-items: center;">
+                        <span class="collapse-icon">▼</span>
+                        <span class="command-name">/info</span>
+                    </div>
+                    <div class="command-stats">
+                        <span class="mini-stat">Total: 1</span>
+                        <span class="mini-stat" style="color: var(--success);">✅ 0</span>
+                        <span class="mini-stat" style="color: var(--danger);">❌ 0</span>
+                    </div>
+                </div>
+                <div class="collapsible-content">
+            
+
+                <table class="results-table">
+                    <thead>
+                        <tr>
+                            <th>Subcommand</th>
+                            <th>Description</th>
+                            <th>Status</th>
+                            <th>Last Tested</th>
+                            <th>Notes</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+            
+
+        <tr>
+            <td class="command-name" style="">(base command)</td>
+            <td>No description available</td>
+            <td><span class="status-badge status-untested">untested</span></td>
+            <td class="timestamp">2025-09-07 03:47</td>
+            <td class="notes"></td>
+        </tr>
+
+                    </tbody>
+                </table>
+                </div>
+            </div>
+            
+
+            <div class="collapsible-section collapsible-container">
+                <div class="collapsible-header command-level">
+                    <div style="display: flex; align-items: center;">
+                        <span class="collapse-icon">▼</span>
+                        <span class="command-name">/ping</span>
+                    </div>
+                    <div class="command-stats">
+                        <span class="mini-stat">Total: 1</span>
+                        <span class="mini-stat" style="color: var(--success);">✅ 0</span>
+                        <span class="mini-stat" style="color: var(--danger);">❌ 0</span>
+                    </div>
+                </div>
+                <div class="collapsible-content">
+            
+
+                <table class="results-table">
+                    <thead>
+                        <tr>
+                            <th>Subcommand</th>
+                            <th>Description</th>
+                            <th>Status</th>
+                            <th>Last Tested</th>
+                            <th>Notes</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+            
+
+        <tr>
+            <td class="command-name" style="">(base command)</td>
+            <td>No description available</td>
+            <td><span class="status-badge status-untested">untested</span></td>
+            <td class="timestamp">2025-09-07 03:47</td>
+            <td class="notes"></td>
+        </tr>
+
+                    </tbody>
+                </table>
+                </div>
+            </div>
+            
+
+            <div class="collapsible-section collapsible-container">
+                <div class="collapsible-header command-level">
+                    <div style="display: flex; align-items: center;">
+                        <span class="collapse-icon">▼</span>
+                        <span class="command-name">/prefix</span>
+                    </div>
+                    <div class="command-stats">
+                        <span class="mini-stat">Total: 5</span>
+                        <span class="mini-stat" style="color: var(--success);">✅ 4</span>
+                        <span class="mini-stat" style="color: var(--danger);">❌ 0</span>
+                    </div>
+                </div>
+                <div class="collapsible-content">
+            
+
+                <table class="results-table">
+                    <thead>
+                        <tr>
+                            <th>Subcommand</th>
+                            <th>Description</th>
+                            <th>Status</th>
+                            <th>Last Tested</th>
+                            <th>Notes</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+            
+
+        <tr>
+            <td class="command-name" style="">(base command)</td>
+            <td>Manage the bot's command prefix for this server</td>
+            <td><span class="status-badge status-untested">untested</span></td>
+            <td class="timestamp">2025-09-07 03:47</td>
+            <td class="notes"></td>
+        </tr>
+
+        <tr>
+            <td class="command-name" style="padding-left: 1.5rem;">remove</td>
+            <td>Remove the custom prefix and revert to default</td>
+            <td><span class="status-badge status-passed">passed</span></td>
+            <td class="timestamp">2025-09-07 04:25</td>
+            <td class="notes"></td>
+        </tr>
+
+        <tr>
+            <td class="command-name" style="padding-left: 1.5rem;">reset</td>
+            <td>Reset the guild prefix to default</td>
+            <td><span class="status-badge status-passed">passed</span></td>
+            <td class="timestamp">2025-09-07 04:26</td>
+            <td class="notes"></td>
+        </tr>
+
+        <tr>
+            <td class="command-name" style="padding-left: 1.5rem;">set</td>
+            <td>Set a custom prefix for this guild</td>
+            <td><span class="status-badge status-passed">passed</span></td>
+            <td class="timestamp">2025-09-07 04:26</td>
+            <td class="notes"></td>
+        </tr>
+
+        <tr>
+            <td class="command-name" style="padding-left: 1.5rem;">view</td>
+            <td>Display the current guild's prefix configuration</td>
+            <td><span class="status-badge status-passed">passed</span></td>
+            <td class="timestamp">2025-09-07 04:27</td>
+            <td class="notes"></td>
+        </tr>
+
+                    </tbody>
+                </table>
+                </div>
+            </div>
+            
+        
+        <div class="timeline">
+            <h2>📅 Recent Activity</h2>
+            
+            <div class="timeline-item">
+                <span class="command-name">/prefix view</span>
+                <span style="margin: 0 1rem;">→</span>
+                <span class="status-badge status-passed">passed</span>
+                <span style="margin-left: auto;" class="timestamp">2025-09-07 04:27:12</span>
+            </div>
+            <div class="timeline-item">
+                <span class="command-name">/prefix set</span>
+                <span style="margin: 0 1rem;">→</span>
+                <span class="status-badge status-passed">passed</span>
+                <span style="margin-left: auto;" class="timestamp">2025-09-07 04:26:20</span>
+            </div>
+            <div class="timeline-item">
+                <span class="command-name">/prefix reset</span>
+                <span style="margin: 0 1rem;">→</span>
+                <span class="status-badge status-passed">passed</span>
+                <span style="margin-left: auto;" class="timestamp">2025-09-07 04:26:10</span>
+            </div>
+            <div class="timeline-item">
+                <span class="command-name">/prefix remove</span>
+                <span style="margin: 0 1rem;">→</span>
+                <span class="status-badge status-passed">passed</span>
+                <span style="margin-left: auto;" class="timestamp">2025-09-07 04:25:15</span>
+            </div>
+            <div class="timeline-item">
+                <span class="command-name">/boosterrole award view</span>
+                <span style="margin: 0 1rem;">→</span>
+                <span class="status-badge status-passed">passed</span>
+                <span style="margin-left: auto;" class="timestamp">2025-09-07 03:53:32</span>
+            </div>
+            <div class="timeline-item">
+                <span class="command-name">/boosterrole award unset</span>
+                <span style="margin: 0 1rem;">→</span>
+                <span class="status-badge status-passed">passed</span>
+                <span style="margin-left: auto;" class="timestamp">2025-09-07 03:53:01</span>
+            </div>
+            <div class="timeline-item">
+                <span class="command-name">/boosterrole award set</span>
+                <span style="margin: 0 1rem;">→</span>
+                <span class="status-badge status-passed">passed</span>
+                <span style="margin-left: auto;" class="timestamp">2025-09-07 03:52:44</span>
+            </div>
+            <div class="timeline-item">
+                <span class="command-name">/boosterrole award</span>
+                <span style="margin: 0 1rem;">→</span>
+                <span class="status-badge status-untested">untested</span>
+                <span style="margin-left: auto;" class="timestamp">2025-09-07 03:49:21</span>
+            </div>
+            <div class="timeline-item">
+                <span class="command-name">/boosterrole award</span>
+                <span style="margin: 0 1rem;">→</span>
+                <span class="status-badge status-untested">untested</span>
+                <span style="margin-left: auto;" class="timestamp">2025-09-07 03:47:46</span>
+            </div>
+            <div class="timeline-item">
+                <span class="command-name">/boosterrole cleanup</span>
+                <span style="margin: 0 1rem;">→</span>
+                <span class="status-badge status-untested">untested</span>
+                <span style="margin-left: auto;" class="timestamp">2025-09-07 03:47:46</span>
+            </div>
+        </div>
+        
+        <div class="footer">
+            <p>Generated by Universal Command Testing System</p>
+            <p>© 2024 - Powered by Python & SQLite</p>
+        </div>
+    </div>
+</body>
+</html>

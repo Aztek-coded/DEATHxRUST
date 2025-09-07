@@ -140,6 +140,81 @@ pub async fn init_database(database_path: &str) -> Result<SqlitePool, sqlx::Erro
     .execute(&pool)
     .await?;
 
+    tracing::info!("Creating guild_booster_limits table");
+    sqlx::query(
+        r#"
+        CREATE TABLE IF NOT EXISTS guild_booster_limits (
+            id INTEGER PRIMARY KEY AUTOINCREMENT,
+            guild_id BIGINT NOT NULL UNIQUE,
+            max_roles INTEGER NOT NULL DEFAULT 0,
+            set_by BIGINT NOT NULL,
+            created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+            updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+        )
+        "#,
+    )
+    .execute(&pool)
+    .await?;
+
+    sqlx::query(
+        r#"
+        CREATE INDEX IF NOT EXISTS idx_guild_booster_limits_guild 
+        ON guild_booster_limits(guild_id)
+        "#,
+    )
+    .execute(&pool)
+    .await?;
+
+    tracing::info!("Creating guild_booster_awards table");
+    sqlx::query(
+        r#"
+        CREATE TABLE IF NOT EXISTS guild_booster_awards (
+            id INTEGER PRIMARY KEY AUTOINCREMENT,
+            guild_id BIGINT NOT NULL UNIQUE,
+            award_role_id BIGINT NOT NULL,
+            set_by BIGINT NOT NULL,
+            created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+            updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+        )
+        "#,
+    )
+    .execute(&pool)
+    .await?;
+
+    sqlx::query(
+        r#"
+        CREATE INDEX IF NOT EXISTS idx_guild_booster_awards_guild 
+        ON guild_booster_awards(guild_id)
+        "#,
+    )
+    .execute(&pool)
+    .await?;
+
+    tracing::info!("Creating booster_rename_history table");
+    sqlx::query(
+        r#"
+        CREATE TABLE IF NOT EXISTS booster_rename_history (
+            id INTEGER PRIMARY KEY AUTOINCREMENT,
+            guild_id BIGINT NOT NULL,
+            user_id BIGINT NOT NULL,
+            old_name TEXT NOT NULL,
+            new_name TEXT NOT NULL,
+            renamed_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+        )
+        "#,
+    )
+    .execute(&pool)
+    .await?;
+
+    sqlx::query(
+        r#"
+        CREATE INDEX IF NOT EXISTS idx_rename_user 
+        ON booster_rename_history(guild_id, user_id, renamed_at)
+        "#,
+    )
+    .execute(&pool)
+    .await?;
+
     tracing::info!("Database initialized successfully");
 
     Ok(pool)

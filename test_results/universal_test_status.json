@@ -1,0 +1,84 @@
+{
+  "ping": {
+    "_self": {
+      "status": "untested",
+      "last_tested": null,
+      "notes": ""
+    }
+  },
+  "help": {
+    "_self": {
+      "status": "untested",
+      "last_tested": null,
+      "notes": ""
+    }
+  },
+  "info": {
+    "_self": {
+      "status": "untested",
+      "last_tested": null,
+      "notes": ""
+    }
+  },
+  "prefix": {
+    "_self": {
+      "status": "untested",
+      "last_tested": null,
+      "notes": ""
+    }
+  },
+  "cache_status": {
+    "_self": {
+      "status": "untested",
+      "last_tested": null,
+      "notes": ""
+    }
+  },
+  "boosterrole": {
+    "color": {
+      "status": "untested",
+      "last_tested": null,
+      "notes": ""
+    },
+    "dominant": {
+      "status": "untested",
+      "last_tested": null,
+      "notes": ""
+    },
+    "rename": {
+      "status": "untested",
+      "last_tested": null,
+      "notes": ""
+    },
+    "link": {
+      "status": "untested",
+      "last_tested": null,
+      "notes": ""
+    },
+    "filter": {
+      "status": "untested",
+      "last_tested": null,
+      "notes": ""
+    },
+    "list": {
+      "status": "untested",
+      "last_tested": null,
+      "notes": ""
+    },
+    "cleanup": {
+      "status": "untested",
+      "last_tested": null,
+      "notes": ""
+    },
+    "limit": {
+      "status": "untested",
+      "last_tested": null,
+      "notes": ""
+    },
+    "award": {
+      "status": "untested",
+      "last_tested": null,
+      "notes": ""
+    }
+  }
+}

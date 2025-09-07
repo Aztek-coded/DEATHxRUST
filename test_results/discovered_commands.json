@@ -1,0 +1,188 @@
+{
+  "ping": {
+    "name": "ping",
+    "function": "ping",
+    "subcommands": {},
+    "description": "",
+    "aliases": [
+      "p",
+      "pong",
+      "latency"
+    ],
+    "supports_prefix": true,
+    "supports_slash": true
+  },
+  "help": {
+    "name": "help",
+    "function": "help",
+    "subcommands": {},
+    "description": "",
+    "aliases": [
+      "h",
+      "commands",
+      "cmd"
+    ],
+    "supports_prefix": true,
+    "supports_slash": true
+  },
+  "info": {
+    "name": "info",
+    "function": "info",
+    "subcommands": {},
+    "description": "",
+    "aliases": [
+      "i",
+      "information",
+      "stats"
+    ],
+    "supports_prefix": true,
+    "supports_slash": true
+  },
+  "prefix": {
+    "name": "prefix",
+    "function": "prefix",
+    "subcommands": {
+      "view": {
+        "description": "Display the current guild's prefix configuration",
+        "parameters": []
+      },
+      "set": {
+        "description": "Set a custom prefix for this guild",
+        "parameters": []
+      },
+      "remove": {
+        "description": "Remove the custom prefix and revert to default",
+        "parameters": []
+      },
+      "reset": {
+        "description": "Reset the guild prefix to default",
+        "parameters": []
+      }
+    },
+    "description": "Manage the bot's command prefix for this server",
+    "aliases": [
+      "pre",
+      "pfx",
+      "pref"
+    ],
+    "supports_prefix": true,
+    "supports_slash": true
+  },
+  "cache_status": {
+    "name": "cache_status",
+    "function": "cache_status",
+    "subcommands": {},
+    "description": "",
+    "aliases": [
+      "cache",
+      "c",
+      "status"
+    ],
+    "supports_prefix": true,
+    "supports_slash": true
+  },
+  "boosterrole": {
+    "name": "boosterrole",
+    "function": "boosterrole",
+    "subcommands": {
+      "color": {
+        "name": "color",
+        "description": "Create or update your custom booster role with personalized name and color",
+        "aliases": [
+          "colour"
+        ]
+      },
+      "dominant": {
+        "name": "dominant",
+        "description": "Set your booster role color to your avatar's dominant color",
+        "aliases": [
+          "dom",
+          "avatar",
+          "auto"
+        ]
+      },
+      "rename": {
+        "name": "rename",
+        "description": "New name for your booster role",
+        "aliases": []
+      },
+      "link": {
+        "name": "link",
+        "description": "Link an existing role to a booster member for management purposes",
+        "aliases": []
+      },
+      "filter": {
+        "name": "filter",
+        "description": "Manage blacklisted words that cannot be used in booster role names",
+        "aliases": []
+      },
+      "filter add": {
+        "name": "filter add",
+        "description": "Add a word to the blacklist that cannot be used in booster role names",
+        "aliases": [],
+        "parent_subcommand": "filter"
+      },
+      "filter remove": {
+        "name": "filter remove",
+        "description": "Remove a word from the blacklist so it can be used in booster role names",
+        "aliases": [],
+        "parent_subcommand": "filter"
+      },
+      "filter list": {
+        "name": "filter list",
+        "description": "View all words that are blacklisted from booster role names",
+        "aliases": [
+          "ls"
+        ],
+        "parent_subcommand": "filter"
+      },
+      "list": {
+        "name": "list",
+        "description": "View all custom booster roles created in this server",
+        "aliases": [
+          "ls"
+        ]
+      },
+      "cleanup": {
+        "name": "cleanup",
+        "description": "Preview changes without deleting (dry run)",
+        "aliases": []
+      },
+      "limit": {
+        "name": "limit",
+        "description": "Maximum number of booster roles (0 = unlimited)",
+        "aliases": []
+      },
+      "award": {
+        "name": "award",
+        "description": "",
+        "aliases": []
+      },
+      "award set": {
+        "name": "award set",
+        "description": "Role to award to new boosters",
+        "aliases": [],
+        "parent_subcommand": "award"
+      },
+      "award unset": {
+        "name": "award unset",
+        "description": "",
+        "aliases": [],
+        "parent_subcommand": "award"
+      },
+      "award view": {
+        "name": "award view",
+        "description": "",
+        "aliases": [],
+        "parent_subcommand": "award"
+      }
+    },
+    "description": "Comprehensive booster role management with custom colors, filters, and admin controls",
+    "aliases": [
+      "br",
+      "booster"
+    ],
+    "supports_prefix": true,
+    "supports_slash": true
+  }
+}

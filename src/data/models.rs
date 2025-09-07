@@ -461,3 +461,299 @@ impl RoleNameBlacklist {
         Ok(false)
     }
 }
+
+#[derive(Debug, Clone, FromRow)]
+pub struct GuildBoosterLimit {
+    pub id: i64,
+    pub guild_id: i64,
+    pub max_roles: i32,
+    pub set_by: i64,
+    pub created_at: Option<String>,
+    pub updated_at: Option<String>,
+}
+
+impl GuildBoosterLimit {
+    pub async fn get(pool: &SqlitePool, guild_id: GuildId) -> Result<Option<i32>, sqlx::Error> {
+        tracing::debug!("Database query: get_booster_limit for guild {}", guild_id);
+
+        let result = sqlx::query_scalar::<_, i32>(
+            "SELECT max_roles FROM guild_booster_limits WHERE guild_id = ?",
+        )
+        .bind(guild_id.get() as i64)
+        .fetch_optional(pool)
+        .await?;
+
+        Ok(result)
+    }
+
+    pub async fn set(
+        pool: &SqlitePool,
+        guild_id: GuildId,
+        max_roles: i32,
+        set_by: UserId,
+    ) -> Result<(), sqlx::Error> {
+        tracing::debug!(
+            "Database query: set_guild_booster_limit for guild {} to {}",
+            guild_id,
+            max_roles
+        );
+
+        sqlx::query(
+            r#"
+            INSERT INTO guild_booster_limits (guild_id, max_roles, set_by)
+            VALUES (?, ?, ?)
+            ON CONFLICT (guild_id)
+            DO UPDATE SET 
+                max_roles = excluded.max_roles,
+                set_by = excluded.set_by,
+                updated_at = CURRENT_TIMESTAMP
+            "#,
+        )
+        .bind(guild_id.get() as i64)
+        .bind(max_roles)
+        .bind(set_by.get() as i64)
+        .execute(pool)
+        .await?;
+
+        tracing::info!(
+            guild_id = %guild_id,
+            max_roles = max_roles,
+            set_by = %set_by,
+            "Guild booster limit set"
+        );
+
+        Ok(())
+    }
+
+    pub async fn remove(pool: &SqlitePool, guild_id: GuildId) -> Result<bool, sqlx::Error> {
+        tracing::debug!(
+            "Database query: remove_guild_booster_limit for guild {}",
+            guild_id
+        );
+
+        let result = sqlx::query("DELETE FROM guild_booster_limits WHERE guild_id = ?")
+            .bind(guild_id.get() as i64)
+            .execute(pool)
+            .await?;
+
+        let removed = result.rows_affected() > 0;
+
+        if removed {
+            tracing::info!(guild_id = %guild_id, "Guild booster limit removed");
+        }
+
+        Ok(removed)
+    }
+
+    pub async fn check_limit(
+        pool: &SqlitePool,
+        guild_id: GuildId,
+    ) -> Result<(bool, Option<i32>), sqlx::Error> {
+        let limit = Self::get(pool, guild_id).await?;
+
+        if let Some(max) = limit {
+            if max == 0 {
+                return Ok((false, Some(0)));
+            }
+
+            let current_count = sqlx::query_scalar::<_, i64>(
+                "SELECT COUNT(*) FROM booster_roles WHERE guild_id = ?",
+            )
+            .bind(guild_id.get() as i64)
+            .fetch_one(pool)
+            .await?;
+
+            Ok((current_count < max as i64, Some(max)))
+        } else {
+            Ok((true, None))
+        }
+    }
+}
+
+#[derive(Debug, Clone, FromRow)]
+pub struct GuildBoosterAward {
+    pub id: i64,
+    pub guild_id: i64,
+    pub award_role_id: i64,
+    pub set_by: i64,
+    pub created_at: Option<String>,
+    pub updated_at: Option<String>,
+}
+
+impl GuildBoosterAward {
+    pub async fn get(pool: &SqlitePool, guild_id: GuildId) -> Result<Option<RoleId>, sqlx::Error> {
+        tracing::debug!("Database query: get_booster_award for guild {}", guild_id);
+
+        let result = sqlx::query_scalar::<_, i64>(
+            "SELECT award_role_id FROM guild_booster_awards WHERE guild_id = ?",
+        )
+        .bind(guild_id.get() as i64)
+        .fetch_optional(pool)
+        .await?;
+
+        Ok(result.map(|id| RoleId::new(id as u64)))
+    }
+
+    pub async fn set(
+        pool: &SqlitePool,
+        guild_id: GuildId,
+        award_role_id: RoleId,
+        set_by: UserId,
+    ) -> Result<(), sqlx::Error> {
+        tracing::debug!(
+            "Database query: set_guild_booster_award for guild {} to role {}",
+            guild_id,
+            award_role_id
+        );
+
+        sqlx::query(
+            r#"
+            INSERT INTO guild_booster_awards (guild_id, award_role_id, set_by)
+            VALUES (?, ?, ?)
+            ON CONFLICT (guild_id)
+            DO UPDATE SET 
+                award_role_id = excluded.award_role_id,
+                set_by = excluded.set_by,
+                updated_at = CURRENT_TIMESTAMP
+            "#,
+        )
+        .bind(guild_id.get() as i64)
+        .bind(award_role_id.get() as i64)
+        .bind(set_by.get() as i64)
+        .execute(pool)
+        .await?;
+
+        tracing::info!(
+            guild_id = %guild_id,
+            award_role_id = %award_role_id,
+            set_by = %set_by,
+            "Guild booster award role set"
+        );
+
+        Ok(())
+    }
+
+    pub async fn remove(pool: &SqlitePool, guild_id: GuildId) -> Result<bool, sqlx::Error> {
+        tracing::debug!(
+            "Database query: remove_guild_booster_award for guild {}",
+            guild_id
+        );
+
+        let result = sqlx::query("DELETE FROM guild_booster_awards WHERE guild_id = ?")
+            .bind(guild_id.get() as i64)
+            .execute(pool)
+            .await?;
+
+        let removed = result.rows_affected() > 0;
+
+        if removed {
+            tracing::info!(guild_id = %guild_id, "Guild booster award removed");
+        }
+
+        Ok(removed)
+    }
+}
+
+#[derive(Debug, Clone, FromRow)]
+pub struct BoosterRenameHistory {
+    pub id: i64,
+    pub guild_id: i64,
+    pub user_id: i64,
+    pub old_name: String,
+    pub new_name: String,
+    pub renamed_at: String,
+}
+
+impl BoosterRenameHistory {
+    pub async fn add(
+        pool: &SqlitePool,
+        guild_id: GuildId,
+        user_id: UserId,
+        old_name: &str,
+        new_name: &str,
+    ) -> Result<(), sqlx::Error> {
+        tracing::debug!(
+            "Database query: add_rename_history for user {} in guild {}",
+            user_id,
+            guild_id
+        );
+
+        sqlx::query(
+            r#"
+            INSERT INTO booster_rename_history (guild_id, user_id, old_name, new_name)
+            VALUES (?, ?, ?, ?)
+            "#,
+        )
+        .bind(guild_id.get() as i64)
+        .bind(user_id.get() as i64)
+        .bind(old_name)
+        .bind(new_name)
+        .execute(pool)
+        .await?;
+
+        tracing::info!(
+            user_id = %user_id,
+            guild_id = %guild_id,
+            old_name = %old_name,
+            new_name = %new_name,
+            "Rename history recorded"
+        );
+
+        Ok(())
+    }
+
+    pub async fn get_last_rename(
+        pool: &SqlitePool,
+        guild_id: GuildId,
+        user_id: UserId,
+    ) -> Result<Option<Self>, sqlx::Error> {
+        tracing::debug!(
+            "Database query: get_last_rename for user {} in guild {}",
+            user_id,
+            guild_id
+        );
+
+        let result = sqlx::query_as::<_, BoosterRenameHistory>(
+            r#"
+            SELECT * FROM booster_rename_history 
+            WHERE guild_id = ? AND user_id = ?
+            ORDER BY renamed_at DESC
+            LIMIT 1
+            "#,
+        )
+        .bind(guild_id.get() as i64)
+        .bind(user_id.get() as i64)
+        .fetch_optional(pool)
+        .await?;
+
+        Ok(result)
+    }
+
+    pub async fn check_rate_limit(
+        pool: &SqlitePool,
+        guild_id: GuildId,
+        user_id: UserId,
+        cooldown_minutes: i64,
+    ) -> Result<bool, sqlx::Error> {
+        tracing::debug!(
+            "Database query: check_rename_rate_limit for user {} in guild {}",
+            user_id,
+            guild_id
+        );
+
+        let count = sqlx::query_scalar::<_, i64>(
+            r#"
+            SELECT COUNT(*) FROM booster_rename_history 
+            WHERE guild_id = ? AND user_id = ?
+            AND renamed_at > datetime('now', ? || ' minutes')
+            "#,
+        )
+        .bind(guild_id.get() as i64)
+        .bind(user_id.get() as i64)
+        .bind(format!("-{}", cooldown_minutes))
+        .fetch_one(pool)
+        .await?;
+
+        Ok(count == 0)
+    }
+}

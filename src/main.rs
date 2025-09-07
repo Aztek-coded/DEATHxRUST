@@ -4,6 +4,7 @@ mod config;
 mod data;
 mod handlers;
 mod utils;
+mod testing;
 
 use bot::create_poise_client;
 use config::Settings;

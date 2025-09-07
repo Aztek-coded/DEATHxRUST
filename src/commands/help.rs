@@ -118,7 +118,7 @@ pub async fn help(
         None => {
             // Show general help with all commands
             let commands = &ctx.framework().options().commands;
-            let prefix = ctx.data().settings.command_prefix.clone();
+            let _prefix = ctx.data().settings.command_prefix.clone();
 
             // Get actual prefix for this guild
             let actual_prefix = if let Some(guild_id) = ctx.guild_id() {
