@@ -108,7 +108,18 @@ impl From<BotError> for Error {
     }
 }
 
+impl From<&str> for Error {
+    fn from(error: &str) -> Self {
+        Self::Command(error.to_string())
+    }
+}
+
+impl From<String> for Error {
+    fn from(error: String) -> Self {
+        Self::Command(error)
+    }
+}
+
 /// Type aliases for easier usage throughout the codebase
 pub type Context<'a> = poise::Context<'a, Data, Error>;
-pub type Command = poise::Command<Data, Error>;
 pub type Framework = poise::Framework<Data, Error>;

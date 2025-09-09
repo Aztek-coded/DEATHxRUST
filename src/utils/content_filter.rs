@@ -4,6 +4,7 @@ use tokio::sync::RwLock;
 
 /// Content filter for checking role names against blacklisted words
 /// Provides caching and efficient string matching
+#[allow(dead_code)]
 pub struct ContentFilter {
     /// Cached blacklist words for quick lookup
     cached_words: Arc<RwLock<HashSet<String>>>,
@@ -13,6 +14,7 @@ pub struct ContentFilter {
     db_pool: sqlx::SqlitePool,
 }
 
+#[allow(dead_code)]
 impl ContentFilter {
     /// Create a new content filter for a guild
     pub fn new(guild_id: serenity::all::GuildId, db_pool: sqlx::SqlitePool) -> Self {
@@ -153,6 +155,7 @@ impl ContentFilter {
 
 /// Statistics about a content filter
 #[derive(Debug, Clone)]
+#[allow(dead_code)]
 pub struct ContentFilterStats {
     pub word_count: usize,
     pub guild_id: serenity::all::GuildId,

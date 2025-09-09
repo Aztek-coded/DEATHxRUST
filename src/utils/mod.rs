@@ -1,3 +1,4 @@
+pub mod color_generator;
 pub mod color_parser;
 pub mod content_filter;
 pub mod embed_builder;
@@ -6,11 +7,14 @@ pub mod image_processor;
 pub mod performance;
 pub mod response;
 pub mod role_manager;
+pub mod settings_error;
+pub mod settings_rate_limiter;
 
+pub use color_generator::ColorGenerator;
 pub use color_parser::ColorParser;
-pub use content_filter::ContentFilter;
 pub use embed_builder::{EmbedBuilder, EmbedColor};
 pub use error::{BotError, BotResult};
-pub use performance::PerformanceTracker;
-pub use response::{ContextExt, ResponseHelper};
+pub use response::ResponseHelper;
 pub use role_manager::RoleManager;
+pub use settings_error::SettingsError;
+pub use settings_rate_limiter::SettingsRateLimiter;

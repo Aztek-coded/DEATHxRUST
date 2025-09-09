@@ -3,9 +3,12 @@ use sqlx::{FromRow, SqlitePool};
 
 #[derive(Debug, Clone, FromRow)]
 pub struct GuildPrefix {
+    #[allow(dead_code)]
     pub guild_id: i64,
     pub prefix: String,
+    #[allow(dead_code)]
     pub created_at: Option<String>,
+    #[allow(dead_code)]
     pub updated_at: Option<String>,
 }
 
@@ -65,7 +68,9 @@ impl GuildPrefix {
 
 #[derive(Debug, Clone, FromRow)]
 pub struct BoosterRole {
+    #[allow(dead_code)]
     pub id: i64,
+    #[allow(dead_code)]
     pub guild_id: i64,
     pub user_id: i64,
     pub role_id: i64,
@@ -73,6 +78,7 @@ pub struct BoosterRole {
     pub primary_color: String,
     pub secondary_color: Option<String>,
     pub created_at: Option<String>,
+    #[allow(dead_code)]
     pub updated_at: Option<String>,
 }
 
@@ -235,15 +241,58 @@ impl BoosterRole {
 
         Ok(results)
     }
+
+    pub async fn update_color(
+        pool: &SqlitePool,
+        guild_id: GuildId,
+        user_id: UserId,
+        primary_color: &str,
+        secondary_color: Option<&str>,
+    ) -> Result<(), sqlx::Error> {
+        tracing::debug!(
+            "Database query: update_booster_role_color for user {} in guild {}",
+            user_id,
+            guild_id
+        );
+
+        sqlx::query(
+            r#"
+            UPDATE booster_roles 
+            SET primary_color = ?, secondary_color = ?, updated_at = CURRENT_TIMESTAMP
+            WHERE guild_id = ? AND user_id = ?
+            "#,
+        )
+        .bind(primary_color)
+        .bind(secondary_color)
+        .bind(guild_id.get() as i64)
+        .bind(user_id.get() as i64)
+        .execute(pool)
+        .await?;
+
+        tracing::info!(
+            user_id = %user_id,
+            guild_id = %guild_id,
+            primary_color = %primary_color,
+            "Booster role color updated"
+        );
+
+        Ok(())
+    }
 }
 
 #[derive(Debug, Clone, FromRow)]
 pub struct BoosterRoleLink {
+    #[allow(dead_code)]
     pub id: i64,
+    #[allow(dead_code)]
     pub guild_id: i64,
+    #[allow(dead_code)]
     pub user_id: i64,
+    #[allow(dead_code)]
     pub linked_role_id: i64,
+    #[allow(dead_code)]
     pub linked_by: i64,
+    #[allow(dead_code)]
     pub created_at: Option<String>,
 }
 
@@ -347,10 +396,15 @@ impl BoosterRoleLink {
 
 #[derive(Debug, Clone, FromRow)]
 pub struct RoleNameBlacklist {
+    #[allow(dead_code)]
     pub id: i64,
+    #[allow(dead_code)]
     pub guild_id: i64,
+    #[allow(dead_code)]
     pub word: String,
+    #[allow(dead_code)]
     pub added_by: i64,
+    #[allow(dead_code)]
     pub created_at: Option<String>,
 }
 
@@ -464,11 +518,17 @@ impl RoleNameBlacklist {
 
 #[derive(Debug, Clone, FromRow)]
 pub struct GuildBoosterLimit {
+    #[allow(dead_code)]
     pub id: i64,
+    #[allow(dead_code)]
     pub guild_id: i64,
+    #[allow(dead_code)]
     pub max_roles: i32,
+    #[allow(dead_code)]
     pub set_by: i64,
+    #[allow(dead_code)]
     pub created_at: Option<String>,
+    #[allow(dead_code)]
     pub updated_at: Option<String>,
 }
 
@@ -525,6 +585,7 @@ impl GuildBoosterLimit {
         Ok(())
     }
 
+    #[allow(dead_code)]
     pub async fn remove(pool: &SqlitePool, guild_id: GuildId) -> Result<bool, sqlx::Error> {
         tracing::debug!(
             "Database query: remove_guild_booster_limit for guild {}",
@@ -572,11 +633,17 @@ impl GuildBoosterLimit {
 
 #[derive(Debug, Clone, FromRow)]
 pub struct GuildBoosterAward {
+    #[allow(dead_code)]
     pub id: i64,
+    #[allow(dead_code)]
     pub guild_id: i64,
+    #[allow(dead_code)]
     pub award_role_id: i64,
+    #[allow(dead_code)]
     pub set_by: i64,
+    #[allow(dead_code)]
     pub created_at: Option<String>,
+    #[allow(dead_code)]
     pub updated_at: Option<String>,
 }
 
@@ -656,8 +723,11 @@ impl GuildBoosterAward {
 
 #[derive(Debug, Clone, FromRow)]
 pub struct BoosterRenameHistory {
+    #[allow(dead_code)]
     pub id: i64,
+    #[allow(dead_code)]
     pub guild_id: i64,
+    #[allow(dead_code)]
     pub user_id: i64,
     pub old_name: String,
     pub new_name: String,
@@ -755,5 +825,347 @@ impl BoosterRenameHistory {
         .await?;
 
         Ok(count == 0)
+    }
+}
+
+#[derive(Debug, Clone, FromRow)]
+#[allow(dead_code)]
+pub struct BoosterRoleShare {
+    #[allow(dead_code)]
+    pub id: i64,
+    pub guild_id: i64,
+    pub role_id: i64,
+    pub owner_id: i64,
+    pub shared_with_id: i64,
+    pub shared_at: Option<String>,
+    pub expires_at: Option<String>,
+    pub is_active: bool,
+}
+
+impl BoosterRoleShare {
+    pub async fn create(
+        pool: &SqlitePool,
+        guild_id: GuildId,
+        role_id: RoleId,
+        owner_id: UserId,
+        shared_with_id: UserId,
+    ) -> Result<(), sqlx::Error> {
+        tracing::debug!(
+            "Database query: create_role_share for role {} shared with user {}",
+            role_id,
+            shared_with_id
+        );
+
+        sqlx::query(
+            r#"
+            INSERT INTO booster_role_shares (guild_id, role_id, owner_id, shared_with_id)
+            VALUES (?, ?, ?, ?)
+            "#,
+        )
+        .bind(guild_id.get() as i64)
+        .bind(role_id.get() as i64)
+        .bind(owner_id.get() as i64)
+        .bind(shared_with_id.get() as i64)
+        .execute(pool)
+        .await?;
+
+        tracing::info!(
+            guild_id = %guild_id,
+            role_id = %role_id,
+            owner_id = %owner_id,
+            shared_with_id = %shared_with_id,
+            "Role share created"
+        );
+
+        Ok(())
+    }
+
+    pub async fn remove(
+        pool: &SqlitePool,
+        guild_id: GuildId,
+        role_id: RoleId,
+        shared_with_id: UserId,
+    ) -> Result<bool, sqlx::Error> {
+        tracing::debug!(
+            "Database query: remove_role_share for role {} and user {}",
+            role_id,
+            shared_with_id
+        );
+
+        let result = sqlx::query(
+            r#"
+            UPDATE booster_role_shares 
+            SET is_active = FALSE
+            WHERE guild_id = ? AND role_id = ? AND shared_with_id = ? AND is_active = TRUE
+            "#,
+        )
+        .bind(guild_id.get() as i64)
+        .bind(role_id.get() as i64)
+        .bind(shared_with_id.get() as i64)
+        .execute(pool)
+        .await?;
+
+        let removed = result.rows_affected() > 0;
+
+        if removed {
+            tracing::info!(
+                guild_id = %guild_id,
+                role_id = %role_id,
+                shared_with_id = %shared_with_id,
+                "Role share removed"
+            );
+        }
+
+        Ok(removed)
+    }
+
+    pub async fn get_shared_with_user(
+        pool: &SqlitePool,
+        guild_id: GuildId,
+        user_id: UserId,
+    ) -> Result<Vec<Self>, sqlx::Error> {
+        tracing::debug!(
+            "Database query: get_shared_roles for user {} in guild {}",
+            user_id,
+            guild_id
+        );
+
+        let shares = sqlx::query_as::<_, BoosterRoleShare>(
+            r#"
+            SELECT * FROM booster_role_shares 
+            WHERE guild_id = ? AND shared_with_id = ? AND is_active = TRUE
+            "#,
+        )
+        .bind(guild_id.get() as i64)
+        .bind(user_id.get() as i64)
+        .fetch_all(pool)
+        .await?;
+
+        Ok(shares)
+    }
+
+    pub async fn get_role_shares(
+        pool: &SqlitePool,
+        guild_id: GuildId,
+        role_id: RoleId,
+    ) -> Result<Vec<Self>, sqlx::Error> {
+        tracing::debug!(
+            "Database query: get_role_shares for role {} in guild {}",
+            role_id,
+            guild_id
+        );
+
+        let shares = sqlx::query_as::<_, BoosterRoleShare>(
+            r#"
+            SELECT * FROM booster_role_shares 
+            WHERE guild_id = ? AND role_id = ? AND is_active = TRUE
+            "#,
+        )
+        .bind(guild_id.get() as i64)
+        .bind(role_id.get() as i64)
+        .fetch_all(pool)
+        .await?;
+
+        Ok(shares)
+    }
+
+    pub async fn count_role_shares(
+        pool: &SqlitePool,
+        guild_id: GuildId,
+        role_id: RoleId,
+    ) -> Result<i64, sqlx::Error> {
+        let count = sqlx::query_scalar::<_, i64>(
+            r#"
+            SELECT COUNT(*) FROM booster_role_shares 
+            WHERE guild_id = ? AND role_id = ? AND is_active = TRUE
+            "#,
+        )
+        .bind(guild_id.get() as i64)
+        .bind(role_id.get() as i64)
+        .fetch_one(pool)
+        .await?;
+
+        Ok(count)
+    }
+
+    pub async fn count_user_shares(
+        pool: &SqlitePool,
+        guild_id: GuildId,
+        user_id: UserId,
+    ) -> Result<i64, sqlx::Error> {
+        let count = sqlx::query_scalar::<_, i64>(
+            r#"
+            SELECT COUNT(*) FROM booster_role_shares 
+            WHERE guild_id = ? AND shared_with_id = ? AND is_active = TRUE
+            "#,
+        )
+        .bind(guild_id.get() as i64)
+        .bind(user_id.get() as i64)
+        .fetch_one(pool)
+        .await?;
+
+        Ok(count)
+    }
+}
+
+#[derive(Debug, Clone, FromRow)]
+#[allow(dead_code)]
+pub struct GuildSharingLimit {
+    #[allow(dead_code)]
+    pub id: i64,
+    pub guild_id: i64,
+    pub max_members_per_role: i32,
+    pub max_shared_roles_per_member: i32,
+    #[allow(dead_code)]
+    pub set_by: i64,
+    #[allow(dead_code)]
+    pub created_at: Option<String>,
+    #[allow(dead_code)]
+    pub updated_at: Option<String>,
+}
+
+impl GuildSharingLimit {
+    pub async fn get(pool: &SqlitePool, guild_id: GuildId) -> Result<Option<Self>, sqlx::Error> {
+        tracing::debug!("Database query: get_sharing_limits for guild {}", guild_id);
+
+        let result = sqlx::query_as::<_, GuildSharingLimit>(
+            "SELECT * FROM guild_sharing_limits WHERE guild_id = ?",
+        )
+        .bind(guild_id.get() as i64)
+        .fetch_optional(pool)
+        .await?;
+
+        Ok(result)
+    }
+
+    pub async fn set(
+        pool: &SqlitePool,
+        guild_id: GuildId,
+        max_members_per_role: i32,
+        max_shared_roles_per_member: i32,
+        set_by: UserId,
+    ) -> Result<(), sqlx::Error> {
+        tracing::debug!(
+            "Database query: set_sharing_limits for guild {}",
+            guild_id
+        );
+
+        sqlx::query(
+            r#"
+            INSERT INTO guild_sharing_limits (guild_id, max_members_per_role, max_shared_roles_per_member, set_by)
+            VALUES (?, ?, ?, ?)
+            ON CONFLICT (guild_id)
+            DO UPDATE SET 
+                max_members_per_role = excluded.max_members_per_role,
+                max_shared_roles_per_member = excluded.max_shared_roles_per_member,
+                set_by = excluded.set_by,
+                updated_at = CURRENT_TIMESTAMP
+            "#,
+        )
+        .bind(guild_id.get() as i64)
+        .bind(max_members_per_role)
+        .bind(max_shared_roles_per_member)
+        .bind(set_by.get() as i64)
+        .execute(pool)
+        .await?;
+
+        tracing::info!(
+            guild_id = %guild_id,
+            max_members_per_role = %max_members_per_role,
+            max_shared_roles_per_member = %max_shared_roles_per_member,
+            set_by = %set_by,
+            "Guild sharing limits set"
+        );
+
+        Ok(())
+    }
+}
+
+#[derive(Debug, Clone, FromRow)]
+#[allow(dead_code)]
+pub struct GuildBoosterBaseRole {
+    #[allow(dead_code)]
+    pub id: i64,
+    pub guild_id: i64,
+    pub base_role_id: i64,
+    #[allow(dead_code)]
+    pub set_by: i64,
+    #[allow(dead_code)]
+    pub created_at: Option<String>,
+    #[allow(dead_code)]
+    pub updated_at: Option<String>,
+}
+
+impl GuildBoosterBaseRole {
+    pub async fn get(pool: &SqlitePool, guild_id: GuildId) -> Result<Option<RoleId>, sqlx::Error> {
+        tracing::debug!("Database query: get_base_role for guild {}", guild_id);
+
+        let result = sqlx::query_scalar::<_, i64>(
+            "SELECT base_role_id FROM guild_booster_base_roles WHERE guild_id = ?",
+        )
+        .bind(guild_id.get() as i64)
+        .fetch_optional(pool)
+        .await?;
+
+        Ok(result.map(|id| RoleId::new(id as u64)))
+    }
+
+    pub async fn set(
+        pool: &SqlitePool,
+        guild_id: GuildId,
+        base_role_id: RoleId,
+        set_by: UserId,
+    ) -> Result<(), sqlx::Error> {
+        tracing::debug!(
+            "Database query: set_base_role for guild {} to role {}",
+            guild_id,
+            base_role_id
+        );
+
+        sqlx::query(
+            r#"
+            INSERT INTO guild_booster_base_roles (guild_id, base_role_id, set_by)
+            VALUES (?, ?, ?)
+            ON CONFLICT (guild_id)
+            DO UPDATE SET 
+                base_role_id = excluded.base_role_id,
+                set_by = excluded.set_by,
+                updated_at = CURRENT_TIMESTAMP
+            "#,
+        )
+        .bind(guild_id.get() as i64)
+        .bind(base_role_id.get() as i64)
+        .bind(set_by.get() as i64)
+        .execute(pool)
+        .await?;
+
+        tracing::info!(
+            guild_id = %guild_id,
+            base_role_id = %base_role_id,
+            set_by = %set_by,
+            "Guild booster base role set"
+        );
+
+        Ok(())
+    }
+
+    pub async fn remove(pool: &SqlitePool, guild_id: GuildId) -> Result<bool, sqlx::Error> {
+        tracing::debug!(
+            "Database query: remove_base_role for guild {}",
+            guild_id
+        );
+
+        let result = sqlx::query("DELETE FROM guild_booster_base_roles WHERE guild_id = ?")
+            .bind(guild_id.get() as i64)
+            .execute(pool)
+            .await?;
+
+        let removed = result.rows_affected() > 0;
+
+        if removed {
+            tracing::info!(guild_id = %guild_id, "Guild booster base role removed");
+        }
+
+        Ok(removed)
     }
 }

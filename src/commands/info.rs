@@ -154,8 +154,8 @@ pub async fn info(
                 .avatar_url()
                 .unwrap_or_else(|| current_user.default_avatar_url());
             let guild_count = cache.guilds().len();
-            drop(current_user); // Drop the cache reference explicitly
-            drop(cache); // Drop the cache reference explicitly
+            let _ = current_user; // Drop the cache reference explicitly
+            let _ = cache; // Drop the cache reference explicitly
 
             CreateEmbed::new()
                 .title("🤖 Bot Information")

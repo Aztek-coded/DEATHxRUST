@@ -156,6 +156,7 @@ impl RoleManager {
     }
 
     /// Removes a role from a member if they have it
+    #[allow(dead_code)]
     pub async fn remove_role_from_member(
         ctx: &SerenityContext,
         guild_id: GuildId,
@@ -308,6 +309,7 @@ impl RoleManager {
     }
 
     /// Clean up orphaned roles (roles that exist in database but not in Discord)
+    #[allow(dead_code)]
     pub async fn cleanup_orphaned_roles(
         ctx: &SerenityContext,
         guild_id: GuildId,

@@ -318,6 +318,7 @@ impl BoostHandler {
     }
 
     /// Check and assign award role for new boosters
+    #[allow(dead_code)]
     pub async fn check_award_assignment(
         &self,
         ctx: &Context,
