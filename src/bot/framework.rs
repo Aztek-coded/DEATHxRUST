@@ -1,8 +1,8 @@
 use crate::bot::{Data, Error, Framework};
-use crate::commands::{boosterrole, cache_status, help, info, ping, prefix, test_responses};
+use crate::commands::{boosterrole, cache_status, help, info, ping, prefix, settings, test_responses};
 use crate::config::Settings;
 use crate::data::init_database;
-use crate::handlers::BoostHandler;
+use crate::handlers::{BoostHandler, MemberHandler};
 use crate::utils::{EmbedBuilder, ResponseHelper};
 use serenity::all::{Context, FullEvent, GuildId};
 use std::sync::Arc;
@@ -16,6 +16,7 @@ pub async fn create_framework(settings: Settings) -> Framework {
         prefix::prefix(),
         cache_status::cache_status(),
         boosterrole::boosterrole(),
+        settings::settings(),
     ];
     
     #[cfg(debug_assertions)]
@@ -28,7 +29,7 @@ pub async fn create_framework(settings: Settings) -> Framework {
             Box::pin(async move {
                 // Store start time - we'll use a simple approach
                 // In production, you'd use a concurrent HashMap with command ID
-                let start = std::time::Instant::now();
+                let _start = std::time::Instant::now();
                 
                 // For now, we'll track in the post_command
                 tracing::debug!("Command '{}' starting", ctx.command().name);
@@ -241,8 +242,9 @@ async fn event_handler(
     _framework: poise::FrameworkContext<'_, Data, Error>,
     data: &Data,
 ) -> Result<(), Error> {
-    // Create boost handler for this event
+    // Create handlers for this event
     let boost_handler = BoostHandler::new(Arc::new(data.db_pool.clone()));
+    let member_handler = MemberHandler::new(Arc::new(data.db_pool.clone()));
 
     match event {
         FullEvent::Ready { data_about_bot, .. } => {
@@ -272,6 +274,16 @@ async fn event_handler(
                     removed_role_data_if_available.clone(),
                 )
                 .await;
+        }
+        FullEvent::GuildMemberAddition { new_member } => {
+            // Handle member join events
+            member_handler.handle_member_join(ctx, new_member).await;
+        }
+        FullEvent::GuildMemberRemoval {
+            guild_id, user, ..
+        } => {
+            // Handle member leave events
+            member_handler.handle_member_leave(ctx, *guild_id, user).await;
         }
         _ => {}
     }

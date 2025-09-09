@@ -45,70 +45,36 @@
 ## Feature Details:
 
 ### Name:
-**Boosterrole Extended Management Commands**
+**Settings Command Suite - Comprehensive Guild Configuration System**
 
 ### Intended Function/Feature:
-A comprehensive suite of additional boosterrole management commands that extend the existing boosterrole functionality with administrative controls and enhanced user customization options:
+A complete server administration system that provides Discord server owners and administrators with granular control over guild settings through organized command groups. The system includes:
 
-1. **Cleanup System** - Automated removal of unused/orphaned booster roles
-2. **Role Limits** - Server-wide limits on booster role creation
-3. **Role Renaming** - Allow boosters to rename their existing roles
-4. **Award System** - Automatic role rewards upon member boosting with management controls
+**Core Configuration Management:**
+- Parent `settings` command providing overview of all guild settings
+- `settings config` for viewing current configuration state
 
-**Command Structure:**
-- `/boosterrole cleanup` - Clean up unused booster roles (Manage Guild permission)
-- `/boosterrole limit [limit]` - Set limit for booster roles (Manage Guild permission)
-- `/boosterrole rename [new_name]` - Edit your booster role's name (Booster only)
-- `/boosterrole award [role]` - Reward a member a specific role upon boost (Manage Guild, Manage Roles permissions)
-- `/boosterrole award unset` - Remove the reward role (Manage Guild, Manage Roles permissions)
-- `/boosterrole award view` - View the current award role (Manage Guild, Manage Roles permissions)
+**Staff Management:**
+- `settings staff <role>` for designating staff roles
+- `settings staff list` for viewing all configured staff roles
+
+**Advanced Guild Features:**
+- `settings autonick <nickname>` for automatic nickname assignment to new members
+- `settings joinlogs <channel>` for member join/leave event logging
+- `settings premiumrole <role>` for server subscription premium member designation
+
+The system is designed with a two-tier implementation approach: high-priority easily implementable features and medium-priority features requiring new database tables and event handlers.
 
 ### Symptoms/Behaviors (if update):
-Currently missing essential management features for booster roles:
-- No automated cleanup for roles when boosters leave or expire
-- No limits on role creation leading to potential abuse
-- No way for boosters to rename their existing roles
-- No automatic reward system for new boosters
-- Manual role management required by administrators
-- Orphaned roles accumulate over time cluttering the role list
+*N/A - This is a new feature implementation rather than an update to existing functionality.*
 
 ### Expected Outcomes:
-1. **Automated Maintenance**: 
-   - `/boosterrole cleanup` removes orphaned roles automatically
-   - Provides cleanup statistics (roles removed, members affected)
-   - Dry-run option to preview changes before execution
-
-2. **Resource Control**: 
-   - `/boosterrole limit` prevents role spam with configurable limits
-   - Per-guild limit storage and enforcement
-   - Clear error messages when limits are reached
-
-3. **User Flexibility**: 
-   - `/boosterrole rename` empowers boosters to update their role names
-   - Name validation against existing filters
-   - Preserves role color and position while updating name
-
-4. **Reward Automation**: 
-   - `/boosterrole award` system automatically assigns predefined roles to new boosters
-   - Event-driven role assignment on boost detection
-   - Unset and view subcommands for full management control
-
-5. **Administrative Visibility**: 
-   - Clear management views for award roles and cleanup statistics
-   - Audit logging for all administrative actions
-   - Embedded responses with role counts and member listings
-
-6. **Permission Enforcement**: 
-   - Proper separation between booster-only and admin-only commands
-   - Granular permission checks for role management operations
-   - Error handling for insufficient permissions
-
-7. **Technical Implementation**:
-   - Database schema for limits and award role configuration
-   - Event handlers for boost status changes
-   - Batch processing for cleanup operations
-   - Transaction support for atomic role operations
-   - Rate limiting on rename operations
+1. **Administrative Control**: Server owners gain comprehensive control over guild behavior and member management
+2. **Database Integration**: New tables (`guild_staff_roles`, `guild_auto_nicknames`, `guild_join_log_channels`, `guild_premium_roles`) will be created to persist settings
+3. **Event Handler Integration**: Member join/leave events will trigger configured behaviors (auto-nickname, join logs)
+4. **Permission-Based Access**: All commands restricted to users with "Manage Guild" permissions
+5. **Scalable Architecture**: Foundation for future guild configuration features
+6. **User Experience**: Intuitive command hierarchy with clear feedback and error handling
 
 ## Reference screenshots:
 *No screenshots provided for this feature*

@@ -19,11 +19,13 @@ pub struct CommandMetrics {
 }
 
 #[derive(Clone)]
+#[allow(dead_code)]
 pub struct PerformanceTracker {
     metrics: Arc<RwLock<Vec<CommandMetrics>>>,
     active_timers: Arc<RwLock<HashMap<String, Instant>>>,
 }
 
+#[allow(dead_code)]
 impl PerformanceTracker {
     pub fn new() -> Self {
         Self {

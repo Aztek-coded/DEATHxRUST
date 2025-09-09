@@ -19,53 +19,70 @@
 ## Description:
 
 ```
-### `boosterrole cleanup` ❌
+### `settings` ✅ **IMPLEMENTABLE**
 
-Clean up unused booster roles
+Server configuration (parent command)
 
 - **Arguments:** none
 - **Permissions:** Manage Guild
-- **Status:** Not implemented
+- **Status:** Can be implemented as parent command showing all guild settings
+- **Database:** Can use existing guild settings tables
 
-### `boosterrole limit` ❌
+### `settings config` ✅ **IMPLEMENTABLE**
 
-Set limit for booster roles
+View settings configuration for guild
 
-- **Arguments:** limit
+- **Arguments:** none
 - **Permissions:** Manage Guild
-- **Status:** Not implemented
+- **Status:** Can display all guild configurations in an embed
+- **Database:** Query existing settings tables
 
-### `boosterrole rename` ❌
 
-Edit your booster roles name
+### `settings staff` ✅ **IMPLEMENTABLE**
 
-- **Arguments:** new name
-- **Permissions:** Booster Only
-- **Status:** Not implemented
-
-### `boosterrole award` ❌
-
-Reward a member a specific role upon boost
+Set staff role(s)
 
 - **Arguments:** role
-- **Permissions:** Manage Guild, Roles
-- **Status:** Not implemented
+- **Permissions:** Manage Guild
+- **Status:** Can implement with new `guild_staff_roles` table
+- **Database:** Needs new table for staff role management
 
-### `boosterrole award unset` ❌
+### `settings staff list` ✅ **IMPLEMENTABLE**
 
-Remove the reward role
-
-- **Arguments:** none
-- **Permissions:** Manage Guild, Roles
-- **Status:** Not implemented
-
-### `boosterrole award view` ❌
-
-View the current award role
+View a list of all staff roles
 
 - **Arguments:** none
-- **Permissions:** Manage Guild, Roles
-- **Status:** Not implemented
+- **Permissions:** Manage Guild
+- **Status:** Can list from `guild_staff_roles` table
+
+#### 🟡 **Medium Priority - Require New Tables/Systems**
+
+### `settings autonick` ⚠️ **IMPLEMENTABLE**
+
+Set a nickname to be assigned to members when they join
+
+- **Arguments:** nick
+- **Permissions:** Manage Guild
+- **Status:** Requires member join event handler
+- **Database:** Needs `guild_auto_nicknames` table
+
+### `settings joinlogs` ⚠️ **IMPLEMENTABLE**
+
+Set a channel to log join/leaves in a server
+
+- **Arguments:** channel
+- **Permissions:** Manage Guild
+- **Status:** Requires member join/leave event handlers
+- **Database:** Needs `guild_join_log_channels` table
+
+### `settings premiumrole` ⚠️ **IMPLEMENTABLE**
+
+Set the Premium Members role for Server Subscriptions
+
+- **Arguments:** role
+- **Permissions:** Manage Guild
+- **Status:** Can implement for server subscription tracking
+- **Database:** Needs `guild_premium_roles` table
 ```
 
 

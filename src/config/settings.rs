@@ -3,11 +3,14 @@ use std::env;
 #[derive(Debug, Clone)]
 pub struct Settings {
     pub discord_token: String,
+    #[allow(dead_code)]
     pub debug_mode: bool,
     pub command_prefix: String,
     pub development_guild_id: Option<u64>,
     pub auto_sync_commands: bool,
+    #[allow(dead_code)]
     pub slash_commands_global: bool,
+    #[allow(dead_code)]
     pub always_use_embeds: bool,
 }
 

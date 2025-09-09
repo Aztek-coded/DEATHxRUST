@@ -4,4 +4,5 @@ pub mod help;
 pub mod info;
 pub mod ping;
 pub mod prefix;
+pub mod settings;
 pub mod test_responses;

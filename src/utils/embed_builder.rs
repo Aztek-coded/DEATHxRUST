@@ -8,6 +8,7 @@ pub enum EmbedColor {
     Info,
     Primary,
     Secondary,
+    #[allow(dead_code)]
     Custom(u32),
 }
 
@@ -80,6 +81,7 @@ impl EmbedBuilder {
             .timestamp(Timestamp::now())
     }
 
+    #[allow(dead_code)]
     pub fn with_author(
         embed: CreateEmbed,
         name: impl Into<String>,
@@ -92,10 +94,12 @@ impl EmbedBuilder {
         embed.author(author)
     }
 
+    #[allow(dead_code)]
     pub fn with_footer(embed: CreateEmbed, text: impl Into<String>) -> CreateEmbed {
         embed.footer(CreateEmbedFooter::new(text))
     }
 
+    #[allow(dead_code)]
     pub fn with_fields(
         mut embed: CreateEmbed,
         fields: Vec<(impl Into<String>, impl Into<String>, bool)>,
@@ -106,6 +110,7 @@ impl EmbedBuilder {
         embed
     }
 
+    #[allow(dead_code)]
     pub fn simple_text_to_embed(text: impl Into<String>) -> CreateEmbed {
         let text = text.into();
 
