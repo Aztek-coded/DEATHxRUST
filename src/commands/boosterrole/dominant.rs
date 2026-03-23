@@ -1,4 +1,5 @@
 use crate::bot::{Context, Error};
+use crate::data::models::GuildBoosterBaseRole;
 use crate::utils::EmbedBuilder;
 use poise::serenity_prelude::{self as serenity, Colour, CreateEmbed, EditRole, Member};
 use tracing::{debug, error, info, warn};
@@ -157,6 +158,33 @@ async fn find_or_create_booster_role(
                 .hoist(false),
         )
         .await?;
+
+    // Position the role above base role if configured
+    if let Ok(Some(base_role_id)) = GuildBoosterBaseRole::get(pool, guild_id).await {
+        let base_position = {
+            let guild = guild_id
+                .to_guild_cached(&ctx.serenity_context().cache)
+                .ok_or(Error::Command("Guild not found in cache".to_string()))?;
+            guild.roles.get(&base_role_id).map(|r| r.position)
+        };
+        if let Some(pos) = base_position {
+            let new_position = pos + 1;
+            if let Err(e) = guild_id
+                .edit_role(
+                    &ctx.http(),
+                    new_role.id,
+                    EditRole::new().position(new_position as u16),
+                )
+                .await
+            {
+                tracing::warn!(
+                    role_id = %new_role.id,
+                    error = ?e,
+                    "Failed to position role above base role"
+                );
+            }
+        }
+    }
 
     sqlx::query("INSERT INTO booster_roles (guild_id, user_id, role_id) VALUES (?, ?, ?)")
         .bind(guild_id.get() as i64)
