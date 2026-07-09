@@ -1,0 +1,29 @@
+---
+description: Shared state, caching, and database access patterns
+globs: "src/{bot,data,config}/**/*.rs"
+alwaysApply: false
+---
+
+# Data Management
+
+## Shared state
+
+- Hold app state in Poise `Data` (settings, caches, pools)
+- Share with `Arc`; mutate behind `tokio::sync::RwLock` when needed
+- Expose small async helpers on `Data` instead of leaking lock details
+
+## Caching
+
+- Prefer bounded caches with TTL (e.g. moka) for hot Discord/user lookups
+- Invalidate or TTL-expire after writes that change cached values
+
+## Database
+
+- Use pooled connections (`sqlx` pool options with a modest `max_connections`)
+- Prefer prepared / typed queries; map DB errors into bot error types
+- Batch inserts/updates when writing many rows
+
+## Concurrency
+
+- Don't hold write locks across Discord API awaits
+- Read lock for lookups; upgrade/write only for mutations
