@@ -1,7 +1,9 @@
 use crate::bot::Error;
+use crate::data::models::GuildBoosterBaseRole;
 use crate::utils::{BotError, ColorParser};
 use serenity::all::{Colour, EditRole, Guild, GuildId, Member, Role, RoleId, UserId};
 use serenity::prelude::Context as SerenityContext;
+use sqlx::SqlitePool;
 
 pub struct RoleManager;
 
@@ -13,6 +15,7 @@ impl RoleManager {
         user_id: UserId,
         role_name: &str,
         color: u32,
+        db_pool: &SqlitePool,
     ) -> Result<Role, Error> {
         tracing::info!(
             user_id = %user_id,
@@ -36,9 +39,6 @@ impl RoleManager {
             .into());
         }
 
-        // Find appropriate position for the role
-        let position = Self::find_booster_role_position(&guild).await?;
-
         let role_builder = EditRole::default()
             .name(role_name)
             .colour(Colour::new(color))
@@ -48,15 +48,46 @@ impl RoleManager {
 
         let role = guild_id.create_role(&ctx.http, role_builder).await?;
 
-        // Move role to appropriate position
-        if position > 0 {
-            if let Err(e) = Self::move_role_to_position(ctx, guild_id, role.id, position).await {
-                tracing::warn!(
-                    role_id = %role.id,
-                    position = position,
-                    error = ?e,
-                    "Failed to move role to desired position, keeping default position"
-                );
+        // Position the role above base role if configured, otherwise use fallback positioning
+        if let Ok(Some(base_role_id)) = GuildBoosterBaseRole::get(db_pool, guild_id).await {
+            let base_position = guild.roles.get(&base_role_id).map(|r| r.position);
+            if let Some(pos) = base_position {
+                let new_position = pos + 1;
+                if let Err(e) = guild_id
+                    .edit_role(
+                        &ctx.http,
+                        role.id,
+                        EditRole::new().position(new_position as u16),
+                    )
+                    .await
+                {
+                    tracing::warn!(
+                        role_id = %role.id,
+                        target_position = new_position,
+                        error = ?e,
+                        "Failed to position role above base role"
+                    );
+                }
+            }
+        } else {
+            // Fallback: position relative to bot's highest role
+            let position = Self::find_booster_role_position(&guild).await.unwrap_or(1);
+            if position > 0 {
+                if let Err(e) = guild_id
+                    .edit_role(
+                        &ctx.http,
+                        role.id,
+                        EditRole::new().position(position),
+                    )
+                    .await
+                {
+                    tracing::warn!(
+                        role_id = %role.id,
+                        position = position,
+                        error = ?e,
+                        "Failed to move role to desired position, keeping default position"
+                    );
+                }
             }
         }
 
@@ -249,33 +280,6 @@ impl RoleManager {
         );
 
         Ok(target_position.max(1)) // Ensure position is at least 1
-    }
-
-    /// Moves a role to a specific position in the hierarchy
-    async fn move_role_to_position(
-        _ctx: &SerenityContext,
-        guild_id: GuildId,
-        role_id: RoleId,
-        position: u16,
-    ) -> Result<(), Error> {
-        tracing::debug!(
-            guild_id = %guild_id,
-            role_id = %role_id,
-            position = position,
-            "Moving role to position"
-        );
-
-        // Note: Serenity doesn't have a direct method to set role position
-        // This would need to be implemented using the REST API directly
-        // For now, we'll just log this and accept the default position
-        tracing::warn!(
-            guild_id = %guild_id,
-            role_id = %role_id,
-            position = position,
-            "Role position adjustment not implemented - using default position"
-        );
-
-        Ok(())
     }
 
     /// Validates role name to ensure it meets Discord requirements

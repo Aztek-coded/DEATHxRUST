@@ -209,6 +209,7 @@ pub async fn color(
             user_id,
             &name,
             primary_color,
+            &ctx.data().db_pool,
         )
         .await
         {
