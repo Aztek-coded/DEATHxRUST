@@ -31,4 +31,6 @@ Thumbs.db
 pids
 *.pid
 *.seed
-*.pid.lockscripts/__pycache__/
+*.pid.lock
+scripts/__pycache__/
+.worktrees/
