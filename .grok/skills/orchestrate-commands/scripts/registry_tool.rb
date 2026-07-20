@@ -2,7 +2,6 @@
 # frozen_string_literal: true
 
 require "yaml"
-require "set"
 
 ALLOWED_STATUS = %w[
   pending planning implementing testing reviewing pr_open done blocked
@@ -167,13 +166,45 @@ def cmd_score(data, id)
   0
 end
 
+# Update only status/blocked_reason inside the suite block; keep comments and style.
+def surgical_mark_done(text, id)
+  lines = text.lines
+  id_re = /^\s*-\s*id:\s*#{Regexp.escape(id)}\s*(?:#.*)?$/
+  suite_start = lines.index { |l| l.match?(id_re) }
+  raise "suite block not found in file text: #{id}" unless suite_start
+
+  suite_end = lines.length
+  ((suite_start + 1)...lines.length).each do |i|
+    if lines[i].match?(/^\s*-\s*id:\s+\S/)
+      suite_end = i
+      break
+    end
+  end
+
+  status_found = false
+  blocked_found = false
+  (suite_start...suite_end).each do |i|
+    if lines[i] =~ /^(\s*)status:\s*/
+      lines[i] = "#{$1}status: done\n"
+      status_found = true
+    elsif lines[i] =~ /^(\s*)blocked_reason:\s*/
+      lines[i] = "#{$1}blocked_reason: null\n"
+      blocked_found = true
+    end
+  end
+
+  raise "status field not found in suite block: #{id}" unless status_found
+  raise "blocked_reason field not found in suite block: #{id}" unless blocked_found
+  lines.join
+end
+
 def cmd_record_merge(data, id, path, write:)
   map = suite_map(data)
-  s = map[id]
-  raise "unknown suite: #{id}" unless s
-  s["status"] = "done"
-  s["blocked_reason"] = nil
-  out = data.to_yaml
+  raise "unknown suite: #{id}" unless map[id]
+
+  original = File.read(path)
+  out = surgical_mark_done(original, id)
+
   if write
     File.write(path, out)
     puts "Wrote #{path}: #{id} -> done"
