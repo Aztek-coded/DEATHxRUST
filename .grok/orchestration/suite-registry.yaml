@@ -1,0 +1,312 @@
+version: 1
+concurrency_cap: 3
+# Bleed parity suite queue. Inventory detail:
+# .grok/roadmaps/full command list roadmap.md
+# Design:
+# docs/superpowers/specs/2026-07-19-command-list-orchestration-design.md
+
+suites:
+  # --- Foundations ---
+  - id: agent-orchestration
+    category: foundation
+    title: Multi-agent orchestration F0
+    commands: []
+    depends_on: []
+    priority: 1100
+    unlock_bonus: 100
+    infra_reuse_bonus: 0
+    blocked_penalty: 0
+    status: implementing
+    blocked_reason: null
+    paths:
+      commands: null
+      data: null
+      handlers: null
+    branch: null
+    pr: null
+    roadmap: docs/superpowers/plans/2026-07-19-command-list-orchestration-f0.md
+    notes: "Skill, registry, playbook only. No bot src changes."
+
+  - id: moderation-foundation
+    category: foundation
+    title: Moderation case store and staff helpers
+    commands: []
+    depends_on: [agent-orchestration]
+    priority: 1050
+    unlock_bonus: 80
+    infra_reuse_bonus: 0
+    blocked_penalty: 0
+    status: pending
+    blocked_reason: null
+    paths:
+      commands: null
+      data: src/data/models/moderation.rs
+      handlers: null
+    branch: feature/moderation-foundation
+    pr: null
+    roadmap: null
+    notes: "F1: case log, reason helpers, staff checks, shared mod embeds."
+
+  - id: message-foundation
+    category: foundation
+    title: Shared message event router hooks
+    commands: []
+    depends_on: [agent-orchestration]
+    priority: 1040
+    unlock_bonus: 70
+    infra_reuse_bonus: 10
+    blocked_penalty: 0
+    status: pending
+    blocked_reason: null
+    paths:
+      commands: null
+      data: null
+      handlers: src/handlers/message_router.rs
+    branch: feature/message-foundation
+    pr: null
+    roadmap: null
+    notes: "F2: MessageCreate/Update/Delete routing pattern."
+
+  # --- Wave 1: moderation MVPs ---
+  - id: moderation-punish
+    category: moderation
+    title: Core punish commands
+    commands: [timeout, untimeout, ban, unban, softban, warn, warnings]
+    depends_on: [moderation-foundation]
+    priority: 900
+    unlock_bonus: 40
+    infra_reuse_bonus: 0
+    blocked_penalty: 0
+    status: pending
+    blocked_reason: null
+    paths:
+      commands: src/commands/moderation/
+      data: src/data/models/moderation.rs
+      handlers: null
+    branch: feature/moderation-punish
+    pr: null
+    roadmap: null
+    notes: "MVP cases; no hardban/jail."
+
+  - id: moderation-purge-basic
+    category: moderation
+    title: Basic purge
+    commands: [purge, "purge bots", "purge humans"]
+    depends_on: [moderation-foundation]
+    priority: 880
+    unlock_bonus: 10
+    infra_reuse_bonus: 0
+    blocked_penalty: 0
+    status: pending
+    blocked_reason: null
+    paths:
+      commands: src/commands/moderation/
+      data: null
+      handlers: null
+    branch: feature/moderation-purge-basic
+    pr: null
+    roadmap: null
+    notes: "Not full Bleed purge filter set."
+
+  - id: moderation-history
+    category: moderation
+    title: Case history and reason edit
+    commands: [history, caselog, reason]
+    depends_on: [moderation-foundation, moderation-punish]
+    priority: 870
+    unlock_bonus: 5
+    infra_reuse_bonus: 0
+    blocked_penalty: 0
+    status: pending
+    blocked_reason: null
+    paths:
+      commands: src/commands/moderation/
+      data: src/data/models/moderation.rs
+      handlers: null
+    branch: feature/moderation-history
+    pr: null
+    roadmap: null
+    notes: ""
+
+  # --- Wave 2: existing handler leverage ---
+  - id: boosts
+    category: servers
+    title: Boost messages
+    commands: [boosts]
+    depends_on: [agent-orchestration]
+    priority: 800
+    unlock_bonus: 15
+    infra_reuse_bonus: 20
+    blocked_penalty: 0
+    status: pending
+    blocked_reason: null
+    paths:
+      commands: src/commands/boosts/
+      data: src/data/models/boosts.rs
+      handlers: src/handlers/boost_handler.rs
+    branch: feature/boosts
+    pr: null
+    roadmap: null
+    notes: "Extends BoostHandler."
+
+  - id: welcome-goodbye
+    category: servers
+    title: Welcome and goodbye messages
+    commands: [welcome, goodbye]
+    depends_on: [agent-orchestration]
+    priority: 800
+    unlock_bonus: 15
+    infra_reuse_bonus: 20
+    blocked_penalty: 0
+    status: pending
+    blocked_reason: null
+    paths:
+      commands: src/commands/welcome/
+      data: src/data/models/welcome.rs
+      handlers: src/handlers/member_handler.rs
+    branch: feature/welcome-goodbye
+    pr: null
+    roadmap: null
+    notes: "Extends MemberHandler. Prefer after message-foundation if sticky shared later."
+
+  # --- Wave 3: message features + light utils ---
+  - id: snipe
+    category: snipe
+    title: Message snipe
+    commands: [snipe]
+    depends_on: [message-foundation]
+    priority: 700
+    unlock_bonus: 5
+    infra_reuse_bonus: 10
+    blocked_penalty: 0
+    status: pending
+    blocked_reason: null
+    paths:
+      commands: src/commands/snipe/
+      data: null
+      handlers: src/handlers/message_router.rs
+    branch: feature/snipe
+    pr: null
+    roadmap: null
+    notes: ""
+
+  - id: stickymessage
+    category: servers
+    title: Sticky messages
+    commands: [stickymessage]
+    depends_on: [message-foundation]
+    priority: 700
+    unlock_bonus: 5
+    infra_reuse_bonus: 10
+    blocked_penalty: 0
+    status: pending
+    blocked_reason: null
+    paths:
+      commands: src/commands/stickymessage/
+      data: src/data/models/sticky.rs
+      handlers: src/handlers/message_router.rs
+    branch: feature/stickymessage
+    pr: null
+    roadmap: null
+    notes: ""
+
+  - id: firstmessage
+    category: servers
+    title: First message link
+    commands: [firstmessage]
+    depends_on: [agent-orchestration]
+    priority: 600
+    unlock_bonus: 0
+    infra_reuse_bonus: 0
+    blocked_penalty: 0
+    status: pending
+    blocked_reason: null
+    paths:
+      commands: src/commands/firstmessage.rs
+      data: null
+      handlers: null
+    branch: feature/firstmessage
+    pr: null
+    roadmap: null
+    notes: "Small utility; low coupling."
+
+  - id: pin-utils
+    category: servers
+    title: Pin and unpin
+    commands: [pin, unpin]
+    depends_on: [agent-orchestration]
+    priority: 600
+    unlock_bonus: 0
+    infra_reuse_bonus: 0
+    blocked_penalty: 0
+    status: pending
+    blocked_reason: null
+    paths:
+      commands: src/commands/pin.rs
+      data: null
+      handlers: null
+    branch: feature/pin-utils
+    pr: null
+    roadmap: null
+    notes: ""
+
+  # --- Explicitly blocked examples ---
+  - id: music-core
+    category: music
+    title: Music playback
+    commands: [play, skip, stop, queue]
+    depends_on: [agent-orchestration]
+    priority: 200
+    unlock_bonus: 0
+    infra_reuse_bonus: 0
+    blocked_penalty: 100
+    status: blocked
+    blocked_reason: "needs media stack and external APIs"
+    paths:
+      commands: src/commands/music/
+      data: null
+      handlers: null
+    branch: null
+    pr: null
+    roadmap: null
+    notes: ""
+
+  - id: lastfm-core
+    category: lastfm
+    title: Last.fm integration
+    commands: [fm, nowplaying]
+    depends_on: [agent-orchestration]
+    priority: 200
+    unlock_bonus: 0
+    infra_reuse_bonus: 0
+    blocked_penalty: 100
+    status: blocked
+    blocked_reason: "needs Last.fm API design"
+    paths:
+      commands: src/commands/lastfm/
+      data: null
+      handlers: null
+    branch: null
+    pr: null
+    roadmap: null
+    notes: ""
+
+  - id: prefix-self
+    category: servers
+    title: Personal prefix Tier 2
+    commands: ["prefix self"]
+    depends_on: [agent-orchestration]
+    priority: 400
+    unlock_bonus: 0
+    infra_reuse_bonus: 5
+    blocked_penalty: 80
+    status: blocked
+    blocked_reason: "needs premium tier system"
+    paths:
+      commands: src/commands/prefix.rs
+      data: null
+      handlers: null
+    branch: null
+    pr: null
+    roadmap: null
+    notes: ""
