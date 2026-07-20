@@ -1,0 +1,82 @@
+version: 1
+concurrency_cap: 3
+suites:
+  - id: foundation-a
+    category: foundation
+    title: Foundation A
+    commands: []
+    depends_on: []
+    priority: 1000
+    unlock_bonus: 50
+    infra_reuse_bonus: 0
+    blocked_penalty: 0
+    status: done
+    blocked_reason: null
+    paths:
+      commands: null
+      data: null
+      handlers: null
+    branch: null
+    pr: null
+    roadmap: null
+    notes: ""
+
+  - id: suite-ready
+    category: moderation
+    title: Ready suite
+    commands: [ban]
+    depends_on: [foundation-a]
+    priority: 900
+    unlock_bonus: 10
+    infra_reuse_bonus: 5
+    blocked_penalty: 0
+    status: pending
+    blocked_reason: null
+    paths:
+      commands: src/commands/moderation/
+      data: null
+      handlers: null
+    branch: null
+    pr: null
+    roadmap: null
+    notes: "MVP ban"
+
+  - id: suite-blocked-dep
+    category: moderation
+    title: Blocked by dep
+    commands: [jail]
+    depends_on: [suite-missing]
+    priority: 800
+    unlock_bonus: 0
+    infra_reuse_bonus: 0
+    blocked_penalty: 0
+    status: pending
+    blocked_reason: null
+    paths:
+      commands: src/commands/moderation/
+      data: null
+      handlers: null
+    branch: null
+    pr: null
+    roadmap: null
+    notes: ""
+
+  - id: suite-explicit-blocked
+    category: music
+    title: Explicit blocked
+    commands: [play]
+    depends_on: []
+    priority: 200
+    unlock_bonus: 0
+    infra_reuse_bonus: 0
+    blocked_penalty: 100
+    status: blocked
+    blocked_reason: "needs music stack"
+    paths:
+      commands: null
+      data: null
+      handlers: null
+    branch: null
+    pr: null
+    roadmap: null
+    notes: ""
