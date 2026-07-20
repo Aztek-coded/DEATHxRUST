@@ -12,6 +12,7 @@ Project-local configuration for [Grok](https://x.ai/cli) agentic coding. Mirrors
 | `guidelines/` | Longer reference docs (not auto-loaded; skills/rules link here) |
 | `roadmaps/` | Feature implementation roadmaps written by skills |
 | `enhancements/` | Guideline-alignment notes from `analyze-roadmap` |
+| `orchestration/` | Suite registry for multi-agent command parity |
 
 ## Skills
 
@@ -24,6 +25,7 @@ Project-local configuration for [Grok](https://x.ai/cli) agentic coding. Mirrors
 | `troubleshoot-issue` | `/troubleshoot-issue` | Bug/repro intake → troubleshooting report |
 | `commit` | `/commit` | Stage + commit (push only if user asks) |
 | `commit-and-merge` | `/commit-and-merge` | Commit, push, merge to main (explicit only) |
+| `orchestrate-commands` | `/orchestrate-commands` | Multi-agent Bleed parity: registry, waves, plan/implement/test/review |
 
 ## Rules (auto-loaded)
 

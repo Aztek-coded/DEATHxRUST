@@ -40,6 +40,7 @@ Prefer the active harness's directory for new artifacts. Do not treat `.claude/`
 | `troubleshoot-issue` | Blank troubleshooting report from description/screenshots |
 | `commit` | Stage + commit (push only if asked) |
 | `commit-and-merge` | Commit, push, merge to main (explicit only) |
+| `orchestrate-commands` | Multi-agent Bleed command parity orchestration (registry + waves) |
 
 ## Skills (Cursor)
 
