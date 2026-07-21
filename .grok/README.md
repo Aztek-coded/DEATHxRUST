@@ -7,25 +7,21 @@ Project-local configuration for [Grok](https://x.ai/cli) agentic coding. Mirrors
 | Path | Purpose |
 |------|---------|
 | `rules/` | Always-loaded project rules (`*.md`) |
-| `skills/` | Invocable skills (`*/SKILL.md`) — also slash commands |
-| `commands/` | Legacy flat slash-command markdown (optional aliases) |
+| `skills/` | Project-local invocable skills (`*/SKILL.md`) |
+| `commands/` | Optional legacy slash aliases (kept empty; use plugins + skills) |
 | `guidelines/` | Longer reference docs (not auto-loaded; skills/rules link here) |
-| `roadmaps/` | Feature implementation roadmaps written by skills |
-| `enhancements/` | Guideline-alignment notes from `analyze-roadmap` |
+| `roadmaps/` | Feature implementation roadmaps |
+| `enhancements/` | Guideline-alignment notes |
 | `orchestration/` | Suite registry for multi-agent command parity |
 
 ## Skills
 
+Keep only project-specific skills here. Generic workflows (commit, feature roadmaps, troubleshoot) come from installed Grok plugins so they do not clash with project copies.
+
 | Skill | Slash | Use for |
 |-------|-------|---------|
-| `new-feature-report` | `/new-feature-report` | Feature intake → structured report → pick roadmap depth |
-| `new-feature-roadmap` | `/new-feature-roadmap` | Write `.grok/roadmaps/<slug>-roadmap.md` |
-| `implement-roadmap` | `/implement-roadmap` | Branch + implement a roadmap (no commit unless asked) |
-| `analyze-roadmap` | `/analyze-roadmap` | Alignment check → `.grok/enhancements/` if needed |
-| `troubleshoot-issue` | `/troubleshoot-issue` | Bug/repro intake → troubleshooting report |
-| `commit` | `/commit` | Stage + commit (push only if user asks) |
-| `commit-and-merge` | `/commit-and-merge` | Commit, push, merge to main (explicit only) |
 | `orchestrate-commands` | `/orchestrate-commands` | Multi-agent Bleed parity: registry, waves, plan/implement/test/review |
+| `merge-suite-pr` | `/merge-suite-pr` | After you confirm ready: merge PR → record-merge → delete feature branch |
 
 ## Rules (auto-loaded)
 

@@ -1,6 +1,7 @@
 use crate::config::Settings;
-use crate::data::models::GuildPrefix;
+use crate::data::models::{GuildPrefix, ModerationAction, ModerationCase};
 use crate::utils::BotError;
+use serenity::all::{GuildId, UserId};
 use sqlx::SqlitePool;
 use std::collections::HashMap;
 use std::sync::Arc;
@@ -58,6 +59,41 @@ impl Data {
         }
 
         Ok(removed)
+    }
+
+    /// Create a moderation case (F1 store).
+    #[allow(dead_code)] // Used by later moderation command suites
+    pub async fn create_moderation_case(
+        &self,
+        guild_id: GuildId,
+        action: ModerationAction,
+        target_id: UserId,
+        moderator_id: UserId,
+        reason: Option<&str>,
+        duration_seconds: Option<i64>,
+        related_case_id: Option<i64>,
+    ) -> Result<ModerationCase, Error> {
+        Ok(ModerationCase::create(
+            &self.db_pool,
+            guild_id,
+            action,
+            target_id,
+            moderator_id,
+            reason,
+            duration_seconds,
+            related_case_id,
+        )
+        .await?)
+    }
+
+    /// Fetch a moderation case by guild-scoped case number.
+    #[allow(dead_code)] // Used by later moderation command suites
+    pub async fn get_moderation_case(
+        &self,
+        guild_id: GuildId,
+        case_number: i64,
+    ) -> Result<Option<ModerationCase>, Error> {
+        Ok(ModerationCase::get(&self.db_pool, guild_id, case_number).await?)
     }
 }
 

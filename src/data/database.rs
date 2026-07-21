@@ -1,7 +1,6 @@
 use sqlx::{sqlite::SqlitePoolOptions, SqlitePool};
 use std::path::Path;
 
-
 pub async fn init_database(database_path: &str) -> Result<SqlitePool, sqlx::Error> {
     let database_dir = Path::new(database_path).parent();
     if let Some(dir) = database_dir {
@@ -377,6 +376,69 @@ pub async fn init_database(database_path: &str) -> Result<SqlitePool, sqlx::Erro
         r#"
         CREATE INDEX IF NOT EXISTS idx_settings_audit_log 
         ON settings_audit_log(guild_id, timestamp)
+        "#,
+    )
+    .execute(&pool)
+    .await?;
+
+    // Moderation foundation (F1)
+    tracing::info!("Creating guild_moderation_counters table");
+    sqlx::query(
+        r#"
+        CREATE TABLE IF NOT EXISTS guild_moderation_counters (
+            guild_id BIGINT PRIMARY KEY,
+            last_case_number INTEGER NOT NULL DEFAULT 0
+        )
+        "#,
+    )
+    .execute(&pool)
+    .await?;
+
+    tracing::info!("Creating moderation_cases table");
+    sqlx::query(
+        r#"
+        CREATE TABLE IF NOT EXISTS moderation_cases (
+            id INTEGER PRIMARY KEY AUTOINCREMENT,
+            guild_id BIGINT NOT NULL,
+            case_number INTEGER NOT NULL,
+            action TEXT NOT NULL,
+            target_id BIGINT NOT NULL,
+            moderator_id BIGINT NOT NULL,
+            reason TEXT,
+            duration_seconds INTEGER,
+            active INTEGER NOT NULL DEFAULT 1,
+            related_case_id INTEGER,
+            created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+            updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+            UNIQUE(guild_id, case_number)
+        )
+        "#,
+    )
+    .execute(&pool)
+    .await?;
+
+    sqlx::query(
+        r#"
+        CREATE INDEX IF NOT EXISTS idx_moderation_cases_guild
+        ON moderation_cases(guild_id)
+        "#,
+    )
+    .execute(&pool)
+    .await?;
+
+    sqlx::query(
+        r#"
+        CREATE INDEX IF NOT EXISTS idx_moderation_cases_target
+        ON moderation_cases(guild_id, target_id)
+        "#,
+    )
+    .execute(&pool)
+    .await?;
+
+    sqlx::query(
+        r#"
+        CREATE INDEX IF NOT EXISTS idx_moderation_cases_moderator
+        ON moderation_cases(guild_id, moderator_id)
         "#,
     )
     .execute(&pool)

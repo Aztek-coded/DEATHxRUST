@@ -31,16 +31,12 @@ Prefer the active harness's directory for new artifacts. Do not treat `.claude/`
 
 ## Skills (Grok — auto-discoverable under `.grok/skills/`)
 
+Project-local skills only. Prefer installed Grok plugins for commit, roadmap, troubleshoot, and similar workflows so names do not clash.
+
 | Skill | Use for |
 |-------|---------|
-| `new-feature-report` | Intake a feature brief → structured report → pick roadmap depth |
-| `new-feature-roadmap` | Write `.grok/roadmaps/<slug>-roadmap.md` (standard / think-hard / think-hardest) |
-| `implement-roadmap` | Branch + implement a roadmap (no commit unless asked) |
-| `analyze-roadmap` | Guideline alignment → `.grok/enhancements/` if needed |
-| `troubleshoot-issue` | Blank troubleshooting report from description/screenshots |
-| `commit` | Stage + commit (push only if asked) |
-| `commit-and-merge` | Commit, push, merge to main (explicit only) |
 | `orchestrate-commands` | Multi-agent Bleed command parity orchestration (registry + waves) |
+| `merge-suite-pr` | After you confirm ready: merge PR to main, `record-merge`, delete feature branch |
 
 ## Skills (Cursor)
 

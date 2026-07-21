@@ -36,16 +36,16 @@ suites:
     unlock_bonus: 80
     infra_reuse_bonus: 0
     blocked_penalty: 0
-    status: pending
+    status: pr_open
     blocked_reason: null
     paths:
       commands: null
       data: src/data/models/moderation.rs
       handlers: null
     branch: feature/moderation-foundation
-    pr: null
-    roadmap: null
-    notes: "F1: case log, reason helpers, staff checks, shared mod embeds."
+    pr: "https://github.com/Aztek-coded/DEATHxRUST/pull/1"
+    roadmap: .grok/roadmaps/moderation-foundation-roadmap.md
+    notes: "F1: case log, reason helpers, staff checks, shared mod embeds. PR open."
 
   - id: message-foundation
     category: foundation

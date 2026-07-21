@@ -46,7 +46,7 @@ Do not try to implement the full catalog in one roadmap or one session.
 | **Implement** | Implement agent | Approved roadmap or explicit MVP scope | Code and docs in a suite worktree | Edits worktree; local `cargo`; does not merge |
 | **Test** | Test agent | Worktree / branch | Pass/fail report; fix notes | `cargo fmt`, `clippy`, `test`; up to fix limits in Recovery |
 | **Review** | Review agent | Branch or PR diff | Review notes; optional critical fixes | Flags security, permissions, registration gaps |
-| **Human merge** | Project owner | Open PR that passed gates | Merge to `main` | Only the human merges; then run `record-merge` |
+| **Human merge / land** | Project owner (or agent via `/merge-suite-pr` after owner confirms) | Open PR that passed gates | Merge to `main`, then `record-merge` + branch delete | Owner must confirm ready; preferred path is `/merge-suite-pr` |
 
 ### Role rules
 
@@ -218,8 +218,8 @@ Run suite pipelines in parallel only when **all** of these hold:
 | Worktree | Prefer `.worktrees/<suite-id>` or the git worktree path documented in the skill |
 | PR shape | **One suite → one PR** |
 | PR language | STE100; list commands in the slice; list deferred items; link the suite roadmap |
-| Merge | **No auto-merge.** The user merges. |
-| After merge | Run `record-merge <suite-id>` so status becomes `done` and dependents unlock |
+| Merge | **No silent auto-merge.** The user approves land. Preferred automation: `/merge-suite-pr` (merge PR + `record-merge` + delete branch). |
+| After merge | Run `record-merge <suite-id>` so status becomes `done` and dependents unlock (included in `/merge-suite-pr`) |
 | Force-push | Do not force-push shared branches. Force-push only on unshared feature branches if the user allows it in that session |
 | Commit default | Do not commit, push, or merge unless the user asks (see `AGENTS.md`) |
 
@@ -232,7 +232,7 @@ When the user runs `/orchestrate-commands pipeline` or `wave`, that can mean exp
 1. Do not delete an unknown worktree without a human check.
 2. Document the path and the suite id.
 3. Prefer rebase onto latest `main` when hot-file conflicts appear.
-4. After a successful human merge, run `record-merge` even if the worktree still exists; then clean the worktree only when the user agrees.
+4. After a successful land, run `record-merge` even if the worktree still exists (or use `/merge-suite-pr`, which includes it). Clean worktrees only when safe per that skill.
 
 ---
 
@@ -241,7 +241,7 @@ When the user runs `/orchestrate-commands pipeline` or `wave`, that can mean exp
 Stages for one suite run **in order**. Parallelism applies across **independent suites**, not across stages of the same suite.
 
 ```text
-plan → implement → test → review → open PR → (human merge) → record-merge
+plan → implement → test → review → open PR → (approve land) → merge-suite-pr
 ```
 
 | Stage | Status to set | Action |
@@ -251,8 +251,8 @@ plan → implement → test → review → open PR → (human merge) → record-
 | Test | `testing` | Run `cargo fmt`, `cargo clippy`, `cargo test`; fix within recovery limits |
 | Review | `reviewing` | Security, permissions, registration, DoD checklist |
 | Open PR | `pr_open` | Set `branch` and `pr` fields; STE100 PR body |
-| Human merge | (unchanged until record) | User merges on the host (GitHub/GitLab/etc.) |
-| Record merge | `done` | `record-merge <suite-id>`; unlock dependents |
+| Approve land | (unchanged) | User confirms the PR is ready (chat or GitHub) |
+| Land | `done` after record | `/merge-suite-pr`: merge PR to `main`, `record-merge`, delete feature branch. Manual: user merges on host, then `record-merge` |
 
 ### Skill modes (coordinator)
 
@@ -353,7 +353,8 @@ Invoke the skill as `/orchestrate-commands` (or via project skill discovery) wit
 | `/orchestrate-commands review <suite-id>` | Diff review against DoD |
 | `/orchestrate-commands pipeline <suite-id>` | Full serial pipeline for one suite through PR |
 | `/orchestrate-commands wave [N]` | Up to N parallel pipelines for independent ready suites |
-| `/orchestrate-commands record-merge <suite-id>` | After human merge; update registry |
+| `/orchestrate-commands record-merge <suite-id>` | After merge already on `main`; update registry only |
+| `/merge-suite-pr [suite-id\|PR]` | After user confirms ready: merge PR, record-merge, delete feature branch |
 
 ### Layout reference
 
@@ -363,6 +364,7 @@ Invoke the skill as `/orchestrate-commands` (or via project skill discovery) wit
 | Suite registry | `.grok/orchestration/suite-registry.yaml` |
 | Registry folder README | `.grok/orchestration/README.md` |
 | Coordinator skill | `.grok/skills/orchestrate-commands/SKILL.md` |
+| Land skill | `.grok/skills/merge-suite-pr/SKILL.md` |
 | Registry tool | `.grok/skills/orchestrate-commands/scripts/registry_tool.rb` |
 | Suite roadmaps | `.grok/roadmaps/<suite-id>-roadmap.md` |
 | Inventory | `.grok/roadmaps/full command list roadmap.md` |
@@ -384,7 +386,7 @@ Do **not** schedule or implement these until their foundation or product design 
 | Settings Phase 3 (modlog, jail, mute, music) | Depends on the respective systems |
 | Deep Spotify and other media embeds | External APIs + media stack |
 | Exact Bleed behavior when it conflicts with DEATHxRUST patterns | Prefer Poise, `ResponseHelper`, staff DB, and project rules |
-| Auto-merge to `main` | Humans always merge |
+| Silent auto-merge to `main` | User must confirm ready; then `/merge-suite-pr` may merge |
 | Treating the catalog markdown as the executable build plan | Registry is the queue |
 
 When a suite must stay blocked, set `status: blocked` and a clear `blocked_reason` in the registry. Do not leave silent gaps in the inventory without a registry note.

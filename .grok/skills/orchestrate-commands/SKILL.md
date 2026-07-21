@@ -25,12 +25,12 @@ Drive DEATHxRUST Bleed parity using the suite registry. Do not implement the ful
 ## Hard rules
 
 1. Registry is the queue source of truth. Inventory is human reference.
-2. One suite → one branch `feature/<suite-id>` → one PR. No auto-merge.
+2. One suite → one branch `feature/<suite-id>` → one PR. No silent auto-merge (use `/merge-suite-pr` after user confirms).
 3. Default parallel cap: 3 suites. Foundations run serial.
 4. Ship-ready vertical slices (MVP OK). List deferred commands in the PR.
 5. Follow project patterns: Poise, ResponseHelper, EmbedColor, i64 Discord IDs.
 6. Do not commit, push, merge, or open a PR unless the user allowed it for this run.
-7. When the user invokes `pipeline` or `wave` and allows PRs, you may open PRs; you still must not merge.
+7. When the user invokes `pipeline` or `wave` and allows PRs, you may open PRs; you still must not merge. For merge + cleanup after approval, use `/merge-suite-pr`.
 8. Never edit hot registration files until the end of an implement pass. Serialize if conflict.
 
 ## Modes
@@ -108,13 +108,15 @@ Run plan → implement → test → review → open PR (if allowed) → set `pr_
 
 ### `record-merge <id>`
 
-After the user merges:
+After the PR is already on `main` (user merged, or `/merge-suite-pr` already merged):
 
 ```bash
 ruby .grok/skills/orchestrate-commands/scripts/registry_tool.rb record-merge <id> --write
 ```
 
 Confirm dependents that became ready.
+
+To merge the PR, run registry update, and delete the feature branch in one step, use `/merge-suite-pr` instead.
 
 ## Agent prompts (short)
 
