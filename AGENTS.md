@@ -36,6 +36,7 @@ Project-local skills only. Prefer installed Grok plugins for commit, roadmap, tr
 | Skill | Use for |
 |-------|---------|
 | `orchestrate-commands` | Multi-agent Bleed command parity orchestration (registry + waves) |
+| `merge-suite-pr` | After you confirm ready: merge PR to main, `record-merge`, delete feature branch |
 
 ## Skills (Cursor)
 

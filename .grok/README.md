@@ -21,6 +21,7 @@ Keep only project-specific skills here. Generic workflows (commit, feature roadm
 | Skill | Slash | Use for |
 |-------|-------|---------|
 | `orchestrate-commands` | `/orchestrate-commands` | Multi-agent Bleed parity: registry, waves, plan/implement/test/review |
+| `merge-suite-pr` | `/merge-suite-pr` | After you confirm ready: merge PR → record-merge → delete feature branch |
 
 ## Rules (auto-loaded)
 
