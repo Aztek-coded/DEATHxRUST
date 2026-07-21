@@ -77,14 +77,14 @@ suites:
     unlock_bonus: 40
     infra_reuse_bonus: 0
     blocked_penalty: 0
-    status: reviewing
+    status: pr_open
     blocked_reason: null
     paths:
       commands: src/commands/moderation/
       data: src/data/models/moderation.rs
       handlers: null
     branch: feature/moderation-punish
-    pr: null
+    pr: https://github.com/Aztek-coded/DEATHxRUST/pull/2
     roadmap: .grok/roadmaps/moderation-punish-roadmap.md
     notes: "MVP cases; no hardban/jail."
 
