@@ -1,5 +1,7 @@
 use crate::bot::{Data, Error, Framework};
-use crate::commands::{boosterrole, cache_status, help, info, ping, prefix, settings, test_responses};
+use crate::commands::{
+    boosterrole, cache_status, help, info, moderation, ping, prefix, settings, test_responses,
+};
 use crate::config::Settings;
 use crate::data::init_database;
 use crate::handlers::{BoostHandler, MemberHandler};
@@ -17,11 +19,19 @@ pub async fn create_framework(settings: Settings) -> Framework {
         cache_status::cache_status(),
         boosterrole::boosterrole(),
         settings::settings(),
+        // moderation-punish (register last in suite implement)
+        moderation::timeout(),
+        moderation::untimeout(),
+        moderation::ban(),
+        moderation::unban(),
+        moderation::softban(),
+        moderation::warn(),
+        moderation::warnings(),
     ];
-    
+
     #[cfg(debug_assertions)]
     commands.push(test_responses::test_responses());
-    
+
     let options = poise::FrameworkOptions {
         commands,
         // Add performance tracking hooks here
@@ -30,7 +40,7 @@ pub async fn create_framework(settings: Settings) -> Framework {
                 // Store start time - we'll use a simple approach
                 // In production, you'd use a concurrent HashMap with command ID
                 let _start = std::time::Instant::now();
-                
+
                 // For now, we'll track in the post_command
                 tracing::debug!("Command '{}' starting", ctx.command().name);
             })
@@ -39,14 +49,14 @@ pub async fn create_framework(settings: Settings) -> Framework {
             Box::pin(async move {
                 // For simplicity, we'll measure the entire command duration here
                 // In a real implementation, you'd retrieve the start time from pre_command
-                
+
                 // Log that command completed
                 tracing::info!(
                     "Command '{}' completed for user {}",
                     ctx.command().name,
                     ctx.author().id
                 );
-                
+
                 // Simple metric logging (you could enhance this)
                 let metric = serde_json::json!({
                     "command": ctx.command().name,
@@ -54,7 +64,7 @@ pub async fn create_framework(settings: Settings) -> Framework {
                     "guild_id": ctx.guild_id().map(|id| id.get()),
                     "timestamp": chrono::Utc::now().to_rfc3339(),
                 });
-                
+
                 // Append to metrics file
                 if let Ok(mut file) = std::fs::OpenOptions::new()
                     .create(true)
@@ -279,11 +289,11 @@ async fn event_handler(
             // Handle member join events
             member_handler.handle_member_join(ctx, new_member).await;
         }
-        FullEvent::GuildMemberRemoval {
-            guild_id, user, ..
-        } => {
+        FullEvent::GuildMemberRemoval { guild_id, user, .. } => {
             // Handle member leave events
-            member_handler.handle_member_leave(ctx, *guild_id, user).await;
+            member_handler
+                .handle_member_leave(ctx, *guild_id, user)
+                .await;
         }
         _ => {}
     }

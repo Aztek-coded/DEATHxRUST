@@ -2,6 +2,7 @@ pub mod boosterrole;
 pub mod cache_status;
 pub mod help;
 pub mod info;
+pub mod moderation;
 pub mod ping;
 pub mod prefix;
 pub mod settings;

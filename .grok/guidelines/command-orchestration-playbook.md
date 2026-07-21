@@ -225,7 +225,20 @@ Run suite pipelines in parallel only when **all** of these hold:
 
 ### Orchestration permission note
 
-When the user runs `/orchestrate-commands pipeline` or `wave`, that can mean explicit permission to create branches, worktrees, and open PRs **if** the skill documents that those modes create PRs. That is **not** permission to merge to `main`. Prefer to ask once at the start of a `wave` whether PR creation is allowed for that run.
+When the user runs `/orchestrate-commands pipeline` or `wave`, that is **explicit permission** for that run to:
+
+- create branches and worktrees
+- commit on the suite feature branch
+- push the feature branch
+- open one PR per suite
+
+That is **not** permission to merge to `main`. Do not re-ask for those permissions mid-pipeline unless the user passed `--no-pr` (or equivalent).
+
+Human gates after automation:
+
+1. PR review on the host  
+2. Optional manual Discord smoke tests  
+3. Land approval → `/merge-suite-pr`
 
 ### Dirty worktree policy
 
@@ -241,7 +254,9 @@ When the user runs `/orchestrate-commands pipeline` or `wave`, that can mean exp
 Stages for one suite run **in order**. Parallelism applies across **independent suites**, not across stages of the same suite.
 
 ```text
-plan → implement → test → review → open PR → (approve land) → merge-suite-pr
+plan → implement → test → review → commit → push → open PR
+        → (human: PR review + optional Discord test)
+        → (human confirms) → merge-suite-pr
 ```
 
 | Stage | Status to set | Action |
@@ -250,9 +265,12 @@ plan → implement → test → review → open PR → (approve land) → merge-
 | Implement | `implementing` | Create worktree + branch `feature/<suite-id>`; implement vertical slice |
 | Test | `testing` | Run `cargo fmt`, `cargo clippy`, `cargo test`; fix within recovery limits |
 | Review | `reviewing` | Security, permissions, registration, DoD checklist |
-| Open PR | `pr_open` | Set `branch` and `pr` fields; STE100 PR body |
+| Commit / push | (still `reviewing` until PR opens) | Commit suite files on feature branch; push remote |
+| Open PR | `pr_open` | Set `branch` and `pr` fields; STE100 PR body; **stop for human** |
 | Approve land | (unchanged) | User confirms the PR is ready (chat or GitHub) |
 | Land | `done` after record | `/merge-suite-pr`: merge PR to `main`, `record-merge`, delete feature branch. Manual: user merges on host, then `record-merge` |
+
+**Continuous rule:** `pipeline` and `wave` run all stages above through Open PR without mid-stage human prompts. Discrete modes (`plan`, `implement`, `test`, `review`) still stop after that single stage.
 
 ### Skill modes (coordinator)
 
@@ -261,12 +279,12 @@ plan → implement → test → review → open PR → (approve land) → merge-
 | `status` | Show done / in progress / ready / blocked / waiting on deps |
 | `sync-catalog` | Diff inventory vs registry; flag missing suites; do not auto-implement |
 | `next [N]` | Pick up to N ready suites by score and deps |
-| `plan <id>` | Spawn plan agent → focused roadmap |
+| `plan <id>` | Spawn plan agent → focused roadmap (stops unless inside pipeline) |
 | `implement <id>` | Worktree + implement agent (needs roadmap or explicit MVP scope) |
 | `test <id>` | Test agent on that worktree |
 | `review <id>` | Review agent on branch / PR |
-| `pipeline <id>` | plan → implement → test → review → open PR (one suite, serial stages) |
-| `wave [N]` | Run `pipeline` on up to N independent ready suites in parallel (N ≤ concurrency cap) |
+| `pipeline <id>` | Continuous: plan → implement → test → review → commit → push → open PR; stop at human gate |
+| `wave [N]` | Run continuous `pipeline` on up to N independent ready suites in parallel (N ≤ concurrency cap) |
 | `record-merge <id>` | Mark done after the user merges |
 
 ### Testing layers
