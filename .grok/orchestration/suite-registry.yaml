@@ -36,7 +36,7 @@ suites:
     unlock_bonus: 80
     infra_reuse_bonus: 0
     blocked_penalty: 0
-    status: pr_open
+    status: done
     blocked_reason: null
     paths:
       commands: null
