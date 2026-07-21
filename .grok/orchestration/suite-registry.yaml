@@ -36,7 +36,7 @@ suites:
     unlock_bonus: 80
     infra_reuse_bonus: 0
     blocked_penalty: 0
-    status: pending
+    status: reviewing
     blocked_reason: null
     paths:
       commands: null
@@ -44,8 +44,8 @@ suites:
       handlers: null
     branch: feature/moderation-foundation
     pr: null
-    roadmap: null
-    notes: "F1: case log, reason helpers, staff checks, shared mod embeds."
+    roadmap: .grok/roadmaps/moderation-foundation-roadmap.md
+    notes: "F1: case log, reason helpers, staff checks, shared mod embeds. Implement+test done; awaiting review/PR."
 
   - id: message-foundation
     category: foundation
