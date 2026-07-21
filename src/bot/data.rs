@@ -62,7 +62,6 @@ impl Data {
     }
 
     /// Create a moderation case (F1 store).
-    #[allow(dead_code)] // Used by later moderation command suites
     pub async fn create_moderation_case(
         &self,
         guild_id: GuildId,

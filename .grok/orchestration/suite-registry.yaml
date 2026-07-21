@@ -77,7 +77,7 @@ suites:
     unlock_bonus: 40
     infra_reuse_bonus: 0
     blocked_penalty: 0
-    status: pending
+    status: reviewing
     blocked_reason: null
     paths:
       commands: src/commands/moderation/
@@ -85,7 +85,7 @@ suites:
       handlers: null
     branch: feature/moderation-punish
     pr: null
-    roadmap: null
+    roadmap: .grok/roadmaps/moderation-punish-roadmap.md
     notes: "MVP cases; no hardban/jail."
 
   - id: moderation-purge-basic
